@@ -1,0 +1,3483 @@
+<title>Impostor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: coluna única estreita, tela de revelação em palco alto com cortina deslizante */
+:root{
+  --bg:#eef4f3; --surface:#ffffff; --surface-2:#e3ecea; --fg:#0e1d22; --muted:#53696f; --line:#cddada;
+  --good-a:#0a8a5f; --good-b:#1c6fe6; --bad-a:#e0263f; --bad-b:#0b0b10;
+  --on-good:#ffffff; --focus:#1c6fe6; --good-soft:rgba(10,138,95,.12); --bad-soft:rgba(224,38,63,.1);
+  --shadow:0 1px 2px rgba(10,30,35,.08),0 12px 32px rgba(10,30,35,.12);
+  --font-display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#081014; --surface:#101c21; --surface-2:#172730; --fg:#e9f3f1; --muted:#8ba3a8; --line:#23363c;
+    --good-a:#2ad79c; --good-b:#5aa2ff; --bad-a:#ff4259; --bad-b:#000000;
+    --on-good:#04141a; --focus:#7db4ff; --good-soft:rgba(42,215,156,.14); --bad-soft:rgba(255,66,89,.14);
+    --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 16px 40px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#081014; --surface:#101c21; --surface-2:#172730; --fg:#e9f3f1; --muted:#8ba3a8; --line:#23363c;
+  --good-a:#2ad79c; --good-b:#5aa2ff; --bad-a:#ff4259; --bad-b:#000000;
+  --on-good:#04141a; --focus:#7db4ff; --good-soft:rgba(42,215,156,.14); --bad-soft:rgba(255,66,89,.14);
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 16px 40px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:14px 28px;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.app{max-width:560px;margin-inline:auto;display:flex;flex-direction:column;gap:20px;min-width:0}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.05;letter-spacing:-.02em}
+p{margin:0}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* topo */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:1.35rem;letter-spacing:-.03em}
+.icon-btn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--fg)}
+.icon-btn:hover{border-color:var(--muted)}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 22px;border-radius:16px;border:1px solid transparent;font-weight:700;font-size:1rem;text-align:center;transition:transform .12s ease,opacity .2s ease}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:linear-gradient(105deg,var(--good-a),var(--good-b));color:var(--on-good)}
+.btn.danger{background:linear-gradient(105deg,var(--bad-a),var(--bad-b));color:#fff}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--fg)}
+.btn.ghost:hover:not(:disabled){border-color:var(--muted)}
+.btn.block{width:100%}
+.btn.small{min-height:40px;padding:0 16px;border-radius:12px;font-size:.9rem}
+
+/* configuração */
+.hero h1{font-size:clamp(2.2rem,9.5vw,3.3rem);font-weight:800}
+.hero h1 .l2{display:block;background:linear-gradient(100deg,var(--bad-a),var(--fg) 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin-top:12px;color:var(--muted);max-width:46ch}
+.group{display:flex;flex-direction:column;gap:12px;padding-top:20px;border-top:1px solid var(--line);min-width:0}
+.group h2{font-size:1.25rem;font-weight:700}
+.group .sub{color:var(--muted);font-size:.92rem;margin-top:-6px}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;min-width:0;height:50px;padding:0 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+.addrow input::placeholder{color:var(--muted)}
+.msg{min-height:1.2em;font-size:.88rem;color:var(--bad-a)}
+.players{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.players li{display:flex;align-items:center;gap:4px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;max-width:100%;min-width:0}
+.players li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.players li button{width:32px;height:32px;border-radius:50%;border:0;background:var(--surface-2);color:var(--muted);display:grid;place-items:center;flex:none}
+.players li button:hover{color:var(--bad-a)}
+.count{font-size:.9rem;color:var(--muted)}
+.count b{color:var(--fg);font-variant-numeric:tabular-nums}
+.seg{display:flex;gap:6px;padding:5px;border-radius:18px;background:var(--surface-2)}
+.seg label{flex:1;min-width:0}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 10px;border-radius:13px;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);transition:background .15s,color .15s}
+.seg input:checked+span{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.seg input:disabled+span{opacity:.4;cursor:not-allowed}
+.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.lvl input:checked+.lvl-b{border-color:var(--good-b);background:var(--good-soft)}
+.lvl-b{display:flex;flex-direction:column;gap:2px;height:100%;padding:12px 14px;border-radius:16px;border:2px solid var(--line);background:var(--surface);cursor:pointer}
+.lvl-b b{font-family:var(--font-display);font-size:1.05rem}
+.lvl-b small{color:var(--muted);font-size:.82rem;line-height:1.3}
+.lvl input:focus-visible+.lvl-b{outline:3px solid var(--focus);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.95rem}
+.chip small{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{border-color:var(--good-a);background:var(--good-soft)}
+.chip.adult[aria-pressed="true"]{border-color:var(--bad-a);background:var(--bad-soft)}
+.chip .tag{font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:2px 6px;border-radius:6px;background:linear-gradient(105deg,var(--bad-a),var(--bad-b));color:#fff}
+.toolrow{display:flex;gap:14px;font-size:.9rem}
+.linkbtn{background:none;border:0;padding:6px 0;color:var(--good-b);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.gate{padding:16px;border-radius:18px;background:var(--bad-soft);border:1px solid var(--bad-a);display:flex;flex-direction:column;gap:12px}
+.gate p{font-size:.95rem}
+.gate .row{display:flex;gap:8px;flex-wrap:wrap}
+.startbar{position:sticky;bottom:0;padding-top:28px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--bg) 38%);display:flex;flex-direction:column;gap:8px}
+.startbar .hint{text-align:center;font-size:.88rem;color:var(--muted);min-height:1.3em}
+.foot{text-align:center;font-size:.85rem;color:var(--muted)}
+
+/* revelação */
+.prog{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.92rem;color:var(--muted)}
+.dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.done{background:var(--good-a)}
+.dots i.now{background:var(--fg)}
+.stage{position:relative;height:clamp(390px,64dvh,540px);border-radius:30px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface-2);isolation:isolate}
+.role{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:30px 26px;color:#fff;overflow:hidden}
+.role::before,.role::after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:-1}
+.role::before{width:360px;height:360px;right:-140px;top:-140px;background:rgba(255,255,255,.1)}
+.role::after{width:240px;height:240px;left:-100px;bottom:-110px;background:rgba(0,0,0,.14)}
+.role.good{background:linear-gradient(150deg,#0b9f6e 0%,#1672d9 100%)}
+.role.bad{background:linear-gradient(150deg,#e0263f 0%,#14070a 78%,#000 100%)}
+.role .kick{font-family:var(--font-display);font-weight:800;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;opacity:.92}
+.role .lab{font-size:.95rem;opacity:.85;margin-top:8px}
+.role .word{font-family:var(--font-display);font-weight:800;font-size:clamp(2.1rem,10vw,3.4rem);line-height:1.02;letter-spacing:-.02em;overflow-wrap:anywhere;text-wrap:balance}
+.role .word.sm{font-size:clamp(1.5rem,6.5vw,2.1rem)}
+.role .note{font-size:.95rem;opacity:.88;max-width:34ch;margin-top:8px}
+.curtain{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:16px;padding:34px 24px 20px;text-align:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;border-radius:30px;background:radial-gradient(circle at 50% 0,var(--surface-2),transparent 70%),var(--surface);box-shadow:0 18px 40px rgba(0,0,0,.28);transition:transform .38s cubic-bezier(.2,.9,.25,1.05);will-change:transform}
+.curtain.drag{transition:none;cursor:grabbing}
+.curtain .who{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;flex:1;min-width:0;width:100%}
+.curtain .who small{font-size:.95rem;color:var(--muted)}
+.curtain .who strong{font-family:var(--font-display);font-weight:800;font-size:clamp(2.3rem,12vw,4.2rem);line-height:1;letter-spacing:-.03em;overflow-wrap:anywhere;text-wrap:balance;max-width:100%}
+.curtain .pull{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;font-weight:600}
+.curtain .pull svg{animation:nudge 1.6s ease-in-out infinite}
+.curtain .grip{width:46px;height:5px;border-radius:3px;background:var(--line)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.reveal-note{text-align:center;font-size:.88rem;color:var(--muted)}
+
+/* partida e resultado */
+.panel{padding:22px;border-radius:26px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.big{font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,10vw,3.2rem);line-height:1;letter-spacing:-.03em;overflow-wrap:anywhere}
+.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.timer{font-family:var(--font-display);font-weight:700;font-size:2.4rem;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rules{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:.95rem}
+.stack{display:flex;flex-direction:column;gap:10px}
+.res-word{padding:24px;border-radius:26px;color:#fff;background:linear-gradient(150deg,#0b9f6e,#1672d9);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.res-word .kick{font-size:.8rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.res-imp{padding:22px;border-radius:26px;color:#fff;background:linear-gradient(150deg,#e0263f,#14070a 80%,#000);display:flex;flex-direction:column;gap:8px}
+.res-imp .kick{font-size:.8rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.res-imp .names{font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,8vw,2.4rem);line-height:1.05;overflow-wrap:anywhere}
+.res-imp .hinted{font-size:.95rem;opacity:.9}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{padding:5px 12px;border-radius:999px;background:var(--good-soft);border:1px solid var(--good-a);font-weight:600;font-size:.92rem}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper input{width:92px;height:50px;border-radius:16px;border:1px solid var(--line);background:var(--surface);text-align:center;font-family:var(--font-display);font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.opts{font-weight:700;font-size:.95rem}
+.rank{display:flex;flex-direction:column;gap:8px}
+.rrow{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--surface-2);font-weight:600;min-width:0}
+.rrow .pos{font-family:var(--font-display);font-weight:800;font-size:1.3rem;text-align:center}
+.rrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow .pt{font-variant-numeric:tabular-nums;font-weight:800}
+.rrow.first{background:linear-gradient(105deg,var(--good-a),var(--good-b));color:var(--on-good)}
+.muted{color:var(--muted)}
+.muted.small{font-size:.88rem}
+.votenote{font-size:.92rem;color:var(--muted)}
+.pickq{font-size:1.6rem;font-weight:800}
+.pick{justify-content:flex-start;width:100%;min-height:54px;font-family:var(--font-display);font-size:1.15rem;font-weight:700}
+.tally{display:flex;flex-direction:column;gap:6px}
+.trow{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:14px;background:var(--surface-2);font-weight:600}
+.trow b{font-variant-numeric:tabular-nums}
+.vbox{padding:22px;border-radius:26px;color:#fff;display:flex;flex-direction:column;gap:8px}
+.vbox.good{background:linear-gradient(150deg,#0b9f6e,#1672d9)}
+.vbox.bad{background:linear-gradient(150deg,#e0263f,#14070a 80%,#000)}
+.vbox .kick{font-size:.8rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.vbox .vt{font-family:var(--font-display);font-weight:800;font-size:clamp(1.7rem,8vw,2.4rem);line-height:1.05}
+.vbox .vd{font-size:.97rem;opacity:.92}
+.outcome{padding:20px 22px;border-radius:22px;border:2px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.outcome.good{border-color:var(--good-a);background:var(--good-soft)}
+.outcome.bad{border-color:var(--bad-a);background:var(--bad-soft)}
+.otitle{font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,7.5vw,2.1rem);line-height:1.05;letter-spacing:-.02em}
+.odetail{color:var(--muted);font-size:.95rem}
+.screen[hidden]{display:none!important}
+.screen{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+/* responsivo */
+[hidden]{display:none!important}
+.msg:empty,.players:empty{display:none}
+.group{min-width:0}
+@media (max-width:480px){.levels{grid-template-columns:1fr}.lvl-b{flex-direction:row;justify-content:space-between;align-items:baseline}}
+
+@media (max-width:699px){.stage{height:clamp(260px,calc(100dvh - 372px),540px)}}
+@media (max-width:380px){body{padding-inline:12px}.btn{padding:0 14px}.hero h1{font-size:2rem}}
+@media (min-width:700px){
+  body{padding-inline:28px;padding-block:22px 40px}
+  .app{max-width:760px}
+  .screen:not(#s-setup){max-width:560px;width:100%;margin-inline:auto}
+  .stage{height:clamp(280px,calc(100dvh - 380px),560px)}
+}
+@media (min-width:1000px){
+  .app{max-width:1060px}
+  #s-setup{display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;align-items:start}
+  #s-setup>.hero,#s-setup>.startbar,#s-setup>.foot{grid-column:1/-1}
+  #s-setup>.group:nth-child(2){grid-column:1;grid-row:2/4}
+  #s-setup>.group:nth-child(3){grid-column:2;grid-row:2}
+  #s-setup>.group:nth-child(4){grid-column:2;grid-row:3}
+  #s-setup>.group:nth-child(5){grid-column:1;grid-row:4}
+  #s-setup>.group:nth-child(6){grid-column:2;grid-row:4}
+  .hero h1{font-size:3.6rem}
+  .startbar{position:static;padding-top:0;background:none;max-width:420px;width:100%;margin-inline:auto}
+}
+@media (hover:none){.icon-btn:hover{border-color:var(--line)}}
+@media (max-height:520px){body{padding-block:8px 8px}.app{gap:8px}.screen{gap:8px}.stage{height:max(170px,calc(100dvh - 215px))}.reveal-note{display:none}}
+@media (prefers-reduced-motion:reduce){.curtain{transition:none}.curtain .pull svg{animation:none}.btn{transition:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+        <defs>
+          <linearGradient id="gm1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--good-a)"/><stop offset="1" style="stop-color:var(--good-b)"/></linearGradient>
+          <linearGradient id="gm2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--bad-a)"/><stop offset="1" style="stop-color:var(--bad-b)"/></linearGradient>
+        </defs>
+        <path d="M16 2a14 14 0 0 0 0 28z" fill="url(#gm1)"/>
+        <path d="M16 2a14 14 0 0 1 0 28z" fill="url(#gm2)"/>
+        <rect x="8" y="13.5" width="16" height="5" rx="2.5" fill="#fff" opacity=".93"/>
+      </svg>
+      <span>impostor</span>
+    </div>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Mudar para modo claro"></button>
+  </header>
+
+  <main>
+    <!-- CONFIGURAÇÃO -->
+    <section class="screen" id="s-setup" aria-labelledby="t-setup">
+      <div class="hero">
+        <h1 id="t-setup">Todo mundo sabe a palavra.<span class="l2">Menos um.</span></h1>
+        <p>Reúna o grupo, escolha as regras e passe o celular de mão em mão. Os inocentes recebem a palavra secreta e o impostor tenta descobrir qual é.</p>
+      </div>
+
+      <div class="group">
+        <h2>Jogadores</h2>
+        <p class="sub">Escreva o nome de cada participante. Mínimo de 3.</p>
+        <form class="addrow" id="addForm" autocomplete="off">
+          <label class="vh" for="nameInput">Nome do jogador</label>
+          <input id="nameInput" type="text" maxlength="20" placeholder="Nome do jogador" enterkeyhint="done">
+          <button class="btn primary" type="submit">Adicionar</button>
+        </form>
+        <p class="msg" id="nameMsg" role="status"></p>
+        <ul class="players" id="players" aria-label="Jogadores adicionados"></ul>
+        <p class="count" id="playerCount"></p>
+      </div>
+
+      <div class="group">
+        <h2>Impostores</h2>
+        <div class="seg" role="radiogroup" aria-label="Quantidade de impostores">
+          <label><input class="vh" type="radio" name="imp" value="1" checked><span>1 impostor</span></label>
+          <label><input class="vh" type="radio" name="imp" value="2" id="imp2"><span>2 impostores</span></label>
+        </div>
+        <p class="sub" id="impHelp"></p>
+      </div>
+
+      <div class="group">
+        <h2>Dica para o impostor</h2>
+        <p class="sub">Uma pista extra junto com o aviso de que ele é o impostor.</p>
+        <div class="seg" role="radiogroup" aria-label="Dica para o impostor">
+          <label><input class="vh" type="radio" name="hint" value="0" checked><span>Sem dica</span></label>
+          <label><input class="vh" type="radio" name="hint" value="1"><span>Com dica</span></label>
+        </div>
+        <div class="levels" id="levels" role="radiogroup" aria-label="Nível da dica" hidden>
+          <label class="lvl"><input class="vh" type="radio" name="level" value="f" checked><span class="lvl-b"><b>Fácil</b><small>Sinônimo próximo</small></span></label>
+          <label class="lvl"><input class="vh" type="radio" name="level" value="m"><span class="lvl-b"><b>Média</b><small>Palavra relacionada</small></span></label>
+          <label class="lvl"><input class="vh" type="radio" name="level" value="d"><span class="lvl-b"><b>Difícil</b><small>Palavra bem distante</small></span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Rodadas</h2>
+        <p class="sub">Quantas palavras vão rodar na partida. De 1 a 20. Impostor vence = 2 pontos (1 se vencer só acertando a palavra). Cada inocente que vence ganha 1.</p>
+        <div class="stepper">
+          <button class="icon-btn" type="button" id="roundsMinus" aria-label="Diminuir rodadas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+          <label class="vh" for="roundsInput">Número de rodadas</label>
+          <input id="roundsInput" type="number" inputmode="numeric" min="1" max="20" value="3">
+          <button class="icon-btn" type="button" id="roundsPlus" aria-label="Aumentar rodadas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+        <div class="chips" id="roundChips"></div>
+      </div>
+
+      <div class="group">
+        <h2>Temas das palavras</h2>
+        <div class="chips" id="cats"></div>
+        <div class="toolrow">
+          <button class="linkbtn" type="button" id="allCats">Marcar todos</button>
+          <button class="linkbtn" type="button" id="noCats">Limpar</button>
+        </div>
+        <div class="gate" id="gate" hidden>
+          <p><b>Tema adulto.</b> Reúne palavras sobre sexo e intimidade, sem filtro. Ative só se todos na mesa têm 18 anos ou mais e topam jogar assim.</p>
+          <div class="row">
+            <button class="btn danger small" type="button" id="gateYes">Todos têm 18+, ativar</button>
+            <button class="btn ghost small" type="button" id="gateNo">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="startbar">
+        <button class="btn primary block" type="button" id="startBtn">Começar partida</button>
+        <p class="hint" id="startHint" role="status"></p>
+      </div>
+      <p class="foot" id="foot"></p>
+    </section>
+
+    <!-- REVELAÇÃO -->
+    <section class="screen" id="s-reveal" aria-labelledby="t-reveal" hidden>
+      <h2 class="vh" id="t-reveal">Revelação do papel</h2>
+      <div class="prog"><span id="progText"></span><span class="dots" id="dots" aria-hidden="true"></span></div>
+      <div class="stage" id="stage">
+        <div class="role" id="role" aria-hidden="true"></div>
+        <div class="curtain" id="curtain" tabindex="0" role="button" aria-label="Segure Enter ou Espaço para ver seu papel. Solte para esconder.">
+          <div class="who"><small>Passe o celular para</small><strong id="whoName"></strong></div>
+          <div class="pull">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+            <span>Deslize para cima para ver</span>
+            <span class="grip"></span>
+          </div>
+        </div>
+      </div>
+      <p class="reveal-note">Veja escondido dos outros. Ao soltar, o papel some de novo.</p>
+      <button class="btn primary block" type="button" id="nextBtn" disabled>Deslize para ver seu papel</button>
+      <button class="btn ghost block small" type="button" id="cancelReveal">Cancelar partida</button>
+    </section>
+
+    <!-- PARTIDA -->
+    <section class="screen" id="s-play" aria-labelledby="t-play" hidden>
+      <div class="panel">
+        <p class="eyebrow" id="playEyebrow">Partida em andamento</p>
+        <h2 class="vh" id="t-play">Partida em andamento</h2>
+        <div class="stack">
+          <p class="eyebrow">Quem começa</p>
+          <p class="big" id="starter"></p>
+        </div>
+        <div class="stack">
+          <p class="eyebrow">Tempo de conversa</p>
+          <p class="timer" id="timer">00:00</p>
+        </div>
+        <ul class="rules">
+          <li>Cada um diz uma palavra ou frase curta que combine com a palavra secreta, sem entregá-la.</li>
+          <li>O impostor disfarça e tenta se encaixar.</li>
+          <li>Quando quiserem, abram a votação. Cada um vota em segredo em quem acha que é o impostor.</li>
+          <li>Com 1 impostor, o grupo tem uma única votação: se errar, o impostor vence.</li>
+          <li>Com 2 impostores, são até 3 votações e o grupo pode errar uma vez. No segundo erro, os impostores vencem.</li>
+          <li>Se o impostor for descoberto, ele ainda ganha se acertar a palavra.</li>
+        </ul>
+      </div>
+      <button class="btn danger block" type="button" id="endBtn">Iniciar votação</button>
+      <button class="btn ghost block small" type="button" id="skipBtn">Pular votação e revelar</button>
+      <button class="btn ghost block small" type="button" id="cancelPlay">Cancelar partida</button>
+    </section>
+
+    <!-- VOTAÇÃO -->
+    <section class="screen" id="s-vote" aria-labelledby="t-vote" hidden>
+      <h2 class="vh" id="t-vote">Votação</h2>
+      <div class="prog"><span id="voteProg"></span><span id="voteCount"></span></div>
+      <p class="votenote" id="voteNote"></p>
+      <div class="panel" id="voteGate">
+        <p class="eyebrow">Voto secreto</p>
+        <p class="muted">Passe o celular para</p>
+        <p class="big" id="voterName"></p>
+        <button class="btn primary block" type="button" id="voterGo">Sou eu, votar</button>
+      </div>
+      <div class="panel" id="votePick" hidden>
+        <p class="eyebrow" id="pickWho"></p>
+        <h3 class="pickq">Em quem você vota?</h3>
+        <div class="stack" id="pickList"></div>
+        <p class="muted small">Ninguém vê o seu voto. Depois de escolher, o celular passa para o próximo.</p>
+      </div>
+      <button class="btn ghost block small" type="button" id="cancelVote">Cancelar partida</button>
+    </section>
+
+    <!-- VEREDITO -->
+    <section class="screen" id="s-verdict" aria-labelledby="t-verdict" hidden>
+      <h2 class="vh" id="t-verdict">Resultado da votação</h2>
+      <div class="panel">
+        <p class="eyebrow" id="vdEyebrow"></p>
+        <p class="big" id="vdName"></p>
+        <div class="tally" id="tally"></div>
+        <div class="stack" id="vdTie" hidden></div>
+        <button class="btn danger block" type="button" id="vdReveal">Revelar o papel</button>
+      </div>
+      <div id="vdBox" hidden></div>
+      <button class="btn primary block" type="button" id="vdNext" hidden></button>
+    </section>
+
+    <!-- CHUTE FINAL -->
+    <section class="screen" id="s-guess" aria-labelledby="t-guess" hidden>
+      <div class="panel">
+        <p class="eyebrow">Última chance</p>
+        <h2 class="big" id="t-guess">Qual era a palavra?</h2>
+        <p class="muted" id="guessText"></p>
+        <p class="muted small">Quem for chutar diz a palavra em voz alta. O grupo confirma abaixo.</p>
+        <button class="btn danger block" type="button" id="guessHit">O impostor acertou</button>
+        <button class="btn primary block" type="button" id="guessMiss">O impostor errou</button>
+      </div>
+    </section>
+
+    <!-- RESULTADO -->
+    <section class="screen" id="s-result" aria-labelledby="t-result" hidden>
+      <h2 class="vh" id="t-result">Resultado da rodada</h2>
+      <div class="outcome" id="resOutcome" hidden>
+        <p class="otitle" id="resTitle"></p>
+        <p class="odetail" id="resDetail"></p>
+        <p class="opts" id="resPts"></p>
+        <div class="stack" id="resPick" hidden>
+          <button class="btn primary block" type="button" id="pickInno">Inocentes venceram</button>
+          <button class="btn danger block" type="button" id="pickImp">Impostor venceu</button>
+        </div>
+      </div>
+      <div class="res-word">
+        <p class="kick">A palavra secreta era</p>
+        <p class="big" id="resWord"></p>
+      </div>
+      <div class="res-imp">
+        <p class="kick" id="resKick"></p>
+        <p class="names" id="resImps"></p>
+        <p class="hinted" id="resHint"></p>
+      </div>
+      <div class="panel">
+        <p class="eyebrow">Inocentes</p>
+        <div class="tags" id="resGood"></div>
+      </div>
+      <div class="screen" id="resAfter">
+        <div class="panel">
+          <p class="eyebrow" id="boardTitle">Placar</p>
+          <div class="tally" id="resBoard"></div>
+        </div>
+        <button class="btn primary block" type="button" id="againBtn">Próxima rodada</button>
+      </div>
+      <button class="btn ghost block small" type="button" id="backBtn">Encerrar e mudar jogadores e regras</button>
+    </section>
+
+    <!-- RANKING FINAL -->
+    <section class="screen" id="s-final" aria-labelledby="t-final" hidden>
+      <div class="panel">
+        <p class="eyebrow">Fim da partida</p>
+        <h2 class="big" id="t-final">Ranking final</h2>
+        <p class="muted" id="finalWinner"></p>
+        <div class="rank" id="rank"></div>
+      </div>
+      <button class="btn primary block" type="button" id="replayBtn">Jogar de novo</button>
+      <button class="btn ghost block" type="button" id="finalBack">Mudar jogadores e regras</button>
+    </section>
+  </main>
+</div>
+<script>
+var DATA=[];
+DATA.push({c:"Natureza",t:`Vulcão|montanha que cospe lava|erupção|Pompeia
+Cachoeira|água despencando de um penhasco|queda d'água|Foz do Iguaçu
+Oceano|gigante de água salgada|Atlântico e Pacífico|profundezas escuras
+Deserto|muita areia e quase nenhuma chuva|Saara|miragem
+Floresta|muitas árvores juntas|Amazônia|trilha e silêncio
+Montanha|grande elevação de terra|Everest|alpinista
+Rio|corre até o mar|Amazonas|ponte
+Lago|água cercada de terra|calmo e espelhado|pedalinho
+Praia|areia e mar|guarda-sol|protetor solar
+Ilha|terra cercada de água por todos os lados|Fernando de Noronha|náufrago
+Caverna|buraco grande na rocha|morcegos|Platão
+Geleira|gelo gigante que escorre devagar|polos|Titanic
+Arco-íris|cores no céu|depois da chuva|pote de ouro
+Trovão|barulho forte no céu|vem depois do clarão|medo de cachorro
+Relâmpago|clarão na tempestade|luz rápida|super-herói de vermelho
+Furacão|vento giratório enorme|tempestade tropical|nomes próprios todo ano
+Terremoto|o chão treme|abalo sísmico|escala Richter
+Tsunami|onda gigante|maremoto|Japão
+Neve|flocos brancos caindo|frio extremo|boneco
+Chuva|água caindo do céu|poças e lama|cheiro de terra molhada
+Vento|ar em movimento|ventania|moinho girando
+Nuvem|branca no céu|algodão flutuante|avião atravessa
+Neblina|dificulta enxergar|nuvem rente ao chão|Londres
+Sol|estrela do dia|esquenta a Terra|girassol
+Lua|brilha à noite|tem fases|maré
+Estrela|ponto brilhante no céu|constelação|pedido de desejo
+Cometa|corpo celeste com cauda|Halley|passa a cada 76 anos
+Planeta|gira em torno do Sol|Terra e Marte|Plutão perdeu o posto
+Galáxia|bilhões de estrelas|Via Láctea|espiral
+Eclipse|sol ou lua escondidos|alinhamento de astros|sombra em pleno dia
+Aurora boreal|luzes coloridas no céu|perto dos polos|Noruega
+Pântano|terreno encharcado|lama e jacaré|ogro verde de filme
+Savana|planície africana|leões e zebras|capim dourado
+Tundra|região gelada sem árvores|Ártico|solo congelado
+Recife|corais perto da costa|mergulho|barreira
+Coral|vive no mar|colorido|branqueamento
+Pedra|dura e mineral|rocha|estilingue
+Areia|grãos na praia|desertos|ampulheta
+Lama|terra com água|suja|porco
+Cânion|vale fundo entre rochas|Grand Canyon|erosão
+Planície|terreno plano|campo aberto|horizonte
+Vale|terreno entre montanhas|depressão geográfica|Silício
+Colina|pequena elevação|morro suave|casinha no topo
+Penhasco|barranco íngreme|precipício|salto de base
+Dunas|montes de areia|Lençóis Maranhenses|camelo
+Gruta|caverna pequena|estalactites|templo escondido
+Mangue|vegetação costeira|caranguejo|movimento musical de Recife
+Cerrado|bioma brasileiro|savana do Brasil|pequi
+Pantanal|maior área alagada do planeta|jacarés|Mato Grosso
+Caatinga|bioma do Nordeste|sertão|mandacaru
+Árvore|tronco e folhas|sombra|anéis de crescimento
+Folha|parte verde da planta|cai no outono|papel
+Flor|colorida e perfumada|buquê|abelha visita
+Rosa|flor com espinhos|vermelha|romance
+Girassol|segue o sol|amarelo|Van Gogh
+Cacto|planta com espinhos|deserto|guarda água
+Samambaia|planta de folhas finas|vaso pendurado|pré-histórica
+Bambu|planta oca e alta|panda come|andaime
+Palmeira|árvore tropical|coco|oásis
+Orquídea|flor exótica e delicada|estufa|baunilha
+Grama|verde no chão|jardim|campo de futebol
+Semente|origem da planta|plantar|dispersão
+Raiz|parte debaixo da planta|cenoura|matemática quadrada
+Tronco|corpo da árvore|madeira|lenhador
+Galho|ramo da árvore|pássaro pousa|varinha
+Musgo|verde sobre as pedras|úmido|pedra que rola não cria
+Cogumelo|fungo|champignon|floresta úmida
+Lenha|madeira para queimar|fogueira|inverno
+Fogueira|fogo ao ar livre|acampamento|marshmallow
+Brisa|vento leve|praia|refresco
+Orvalho|gotas na manhã|na grama|madrugada fria
+Geada|gelo fino no chão|frio intenso|sul do Brasil
+Granizo|gelo que cai do céu|chuva de pedra|carro amassado
+Tornado|funil de vento|destruição|Kansas
+Enchente|água invade tudo|cheia|arca
+Seca|falta de chuva|sertão|rachaduras
+Maré|sobe e desce|influência da lua|surfista confere
+Onda|movimento do mar|surfistas|rádio
+Poço|buraco com água|balde|pedido de moeda
+Nascente|onde o rio começa|fonte|início
+Lagoa|pequeno lago|água parada|Rodrigo de Freitas
+Oásis|água no meio do deserto|palmeiras|caravana
+Fóssil|resto antigo preservado|dinossauro|museu
+Diamante|pedra preciosa|carbono|noivado
+Ouro|metal amarelo|valioso|medalha
+Prata|metal brilhante|segundo lugar|talheres
+Cristal|mineral transparente|taça fina|energia dos místicos
+Carvão|combustível preto|churrasco|presente de criança malcomportada
+Petróleo|óleo extraído do solo|gasolina|pré-sal
+Pólen|pó das flores|alergia|abelhas
+Colmeia|casa das abelhas|mel|rainha
+Poeira|sujeira fina no ar|móveis|espirro
+Trilha|caminho na mata|caminhada|bússola
+Península|terra quase toda cercada de água|forma de bota|Itália
+Estalactite|pendura no teto da gruta|calcário|gota por gota
+Atmosfera|camada de ar do planeta|oxigênio|ozônio
+Pôr do sol|fim do dia|céu alaranjado|foto romântica
+Amanhecer|início do dia|sol nascendo|galo canta
+Lua cheia|redonda e brilhante|noite clara|lobisomem
+Tempestade|chuva forte com raios|temporal|navio em apuros
+Cordilheira|cadeia de montanhas|Andes|longa e alta
+`});
+DATA.push({c:"Animais",t:`Cachorro|melhor amigo do homem|late|passeio com coleira
+Gato|mia|bigodes|sete vidas
+Cavalo|galopa|montaria|ferradura
+Vaca|dá leite|muge|campo
+Porco|rosna na lama|bacon|fazenda
+Galinha|bota ovo|cacareja|penas
+Pato|nada e grasna|lagoa|patinho feio
+Ovelha|lã|bale|rebanho
+Cabra|sobe em pedras|bode parente|queijo especial
+Coelho|orelhas longas|pula|Páscoa
+Rato|roedor pequeno|queijo|laboratório
+Hamster|roedor de estimação|roda na gaiola|bochechas cheias
+Tartaruga|casco|devagar|longevidade
+Cobra|rasteja|veneno|Medusa
+Jacaré|boca grande|rios|bolsa de couro
+Crocodilo|réptil temido|dentes afiados|choro falso
+Lagarto|réptil de quatro patas|rabo que solta|parede
+Camaleão|muda de cor|língua longa|disfarce
+Sapo|coaxa|lagoa|príncipe encantado
+Perereca|anfíbio pequeno|grudenta|chuva à noite
+Peixe|vive na água|escamas|aquário
+Tubarão|dentes e nadadeira|oceano|filme de 1975
+Baleia|maior mamífero|esguicho|Moby Dick
+Golfinho|inteligente|saltos e assobios|Flipper
+Polvo|oito braços|tinta|previsão de Copa
+Lula|molusco de tentáculos|anéis fritos|gigante lendária
+Caranguejo|anda de lado|pinças|mangue
+Camarão|crustáceo rosado|coquetel|frito com alho
+Estrela-do-mar|cinco pontas|fundo do mar|regenera braços
+Água-viva|transparente e queima|flutua|sem cérebro
+Foca|barulhenta e gordinha|gelo|aplausos no circo
+Pinguim|ave que não voa|Antártida|smoking natural
+Urso polar|branco e grande|Ártico|derretimento do gelo
+Urso|peludo e forte|hibernação|mel
+Panda|preto e branco|bambu|China
+Lobo|uiva|alcateia|chapeuzinho
+Raposa|esperta|cauda peluda|fábula da uva
+Leão|rei da selva|juba|rugido
+Tigre|listrado|felino|Ásia
+Onça|pintada|felino brasileiro|Pantanal
+Leopardo|manchas|rápido|árvore
+Guepardo|mais veloz em terra|corre|manchas e lágrimas
+Elefante|tromba|grande|nunca esquece
+Girafa|pescoço longo|folhas altas|manchas
+Zebra|listras|savana|cavalo de pijama
+Hipopótamo|gordo e aquático|boca enorme|rio africano
+Rinoceronte|chifre|couro grosso|ameaçado
+Macaco|pula de galho em galho|banana|evolução
+Gorila|maior primata|peito batido|selva africana
+Chimpanzé|primata esperto|parente do homem|usa ferramentas
+Orangotango|ruivo|primata asiático|Bornéu
+Preguiça|devagar|pendurada na árvore|dorme muito
+Tamanduá|língua comprida|formigas|focinho fino
+Tatu|armadura|bola|cava buracos
+Capivara|roedor gigante|calma|rio
+Quati|focinho comprido|rabo listrado|cata comida
+Lontra|aquática|brinca|dá as mãos para dormir
+Castor|constrói represas|dentes grandes|rabo chato
+Canguru|bolsa|pula|Austrália
+Coala|árvore de eucalipto|dorme|fofo
+Ornitorrinco|bico de pato|mamífero que põe ovo|Austrália
+Camelo|corcunda|deserto|bebe pouco
+Lhama|Andes|cospe|pescoço comprido
+Alce|chifres largos|Canadá|floresta fria
+Rena|puxa trenó|chifres|Natal
+Veado|chifres|mata|filhote famoso do cinema
+Búfalo|touro gigante|manada|mozarela
+Morcego|voa à noite|dorme de cabeça para baixo|vampiro
+Esquilo|come nozes|sobe em árvore|rabo felpudo
+Ouriço|espinhos|bola|jardim
+Gambá|cheiro forte|noturno|faz-se de morto
+Papagaio|fala|colorido|louro
+Arara|ave grande e colorida|bico forte|selva
+Tucano|bico enorme|colorido|Amazônia
+Beija-flor|bate asas rápido|néctar|pequeno
+Coruja|olhos grandes|noite|sabedoria
+Águia|ave de rapina|voo alto|símbolo de países
+Falcão|rápido|caça|treinado por nobres
+Urubu|preto|come carniça|limpa a natureza
+Pombo|ave da praça|arrulha|carta antiga
+Pardal|ave pequena|cidade|marrom
+Corvo|preto|grasna|Edgar Allan Poe
+Cisne|elegante|lago|balé
+Flamingo|rosa|uma perna só|pescoço em S
+Avestruz|maior ave|corre|enterra a cabeça (lenda)
+Pavão|cauda colorida|leque|vaidade
+Peru|ave da ceia|glu-glu|Ação de Graças
+Abelha|faz mel|ferrão|zumbido
+Vespa|inseto que ferroa|amarela e preta|ninho de papel
+Formiga|trabalha em fila|formigueiro|forte para o tamanho
+Borboleta|asas coloridas|casulo|efeito
+Mariposa|inseto noturno|luz|asas peludas
+Joaninha|vermelha com bolinhas|sorte|pulgão
+Mosquito|pica|zumbe|dengue
+Mosca|inseto irritante|zumbe|lixo
+Barata|inseto resistente|noturna|sobrevive a tudo
+Aranha|oito patas|teia|super-herói de Nova York
+Escorpião|ferrão|deserto|signo
+Grilo|canta à noite|salta|consciência de boneco
+Cigarra|canta no verão|barulhenta|fábula
+Minhoca|vive na terra|rasteja|isca de pesca
+Caracol|concha|devagar|baba
+Lesma|sem concha|lenta|sal derrete
+Piranha|dentes afiados|rio|carnívora
+Cavalo-marinho|peixinho curioso|macho fica grávido|cauda enrolada
+Raia|peixe achatado|sob a areia|ferrão
+Enguia|peixe parecido com cobra|choque elétrico|muito escorregadia
+Salmão|nada contra a corrente|rosado|piracema
+Atum|peixe grande|lata|sushi
+Sardinha|peixe pequeno|lata|cardume apertado
+Hiena|ri|carniceira|savana
+Boto|rio Amazonas|rosa|lenda do rapaz de chapéu
+Sagui|macaquinho|Brasil|pelos nas orelhas
+Jegue|orelhas grandes|teimoso|sertão
+Dinossauro|extinto|gigante|Jurassic
+`});
+DATA.push({c:"Comida e Bebida",t:`Pizza|redonda com queijo|vem em fatias|Itália
+Hambúrguer|pão com carne|fast food|lanche de rede famosa
+Cachorro-quente|salsicha no pão|barraquinha|beisebol
+Pastel|frito e crocante|feira|recheio de queijo ou carne
+Coxinha|salgado em formato de gota|frango desfiado|festinha de aniversário
+Brigadeiro|doce de festa|chocolate granulado|leite condensado
+Beijinho|doce com coco|festa infantil|cravo no topo
+Pão de queijo|salgado mineiro|queijo e polvilho|café da tarde
+Feijoada|prato com feijão preto|sábado|laranja de acompanhamento
+Arroz|grão branco|prato básico|casamento
+Feijão|caldo escuro|prato brasileiro|sopa da vovó
+Farofa|farinha torrada|acompanha churrasco|mandioca
+Macarrão|massa|espaguete|garfo enrolado
+Lasanha|camadas de massa|molho e queijo|gato preguiçoso de tirinha
+Strogonoff|molho cremoso|batata palha|Rússia
+Churrasco|carne na brasa|domingo|espeto
+Picanha|corte nobre|gordura na tampa|alcatra
+Linguiça|embutido|na brasa|calabresa
+Bacon|tira crocante|porco|café da manhã americano
+Presunto|fatia de frios|sanduíche|joelho de porco
+Queijo|feito de leite|mussarela|rato adora
+Manteiga|passa no pão|amarela|gordura do leite
+Leite|vem da vaca|branco|cereal
+Iogurte|derivado do leite|copinho|probiótico
+Ovo|casca frágil|galinha|Páscoa
+Omelete|ovos batidos|frigideira|dobrada
+Panqueca|massa fina|enrolada|domingo de manhã
+Waffle|massa com quadradinhos|calda|ferro quente
+Pão|assado|padaria|fatias
+Bolo|aniversário|forno|vela
+Torta|massa e recheio|doce ou salgada|limão
+Pudim|doce de leite|calda de caramelo|buraquinhos
+Sorvete|gelado|casquinha|derrete
+Picolé|gelado no palito|verão|carrinho de rua
+Chocolate|doce de cacau|barra|Páscoa
+Bombom|doce embalado|recheado|caixa de presente
+Paçoca|amendoim moído|rolha|festa junina
+Pipoca|estoura|cinema|milho
+Batata frita|palitos dourados|lanchonete|sachê
+Salgadinho|pacote crocante|lanche|dedos sujos
+Sanduíche|dois pães e recheio|lanche|conde inventou
+Sushi|bolinhos de arroz e peixe|japonês|hashi
+Temaki|cone de alga|japonês|enrolado na mão
+Yakisoba|macarrão oriental|legumes e carne|festa de rua
+Tapioca|goma de mandioca|recheio de coco|chapa
+Açaí|roxo e gelado|granola|Pará
+Cuscuz|massa de milho|Nordeste|café da manhã
+Acarajé|bolinho frito|Bahia|baiana vende
+Moqueca|ensopado de peixe|dendê|Espírito Santo
+Vatapá|creme apimentado|camarão|Bahia
+Baião de dois|arroz com feijão|queijo coalho|cantor famoso
+Pamonha|massa de milho|folha|vendedor com alto-falante
+Canjica|doce de milho branco|festa junina|leite de coco
+Quindim|doce amarelo|gema|brilhante
+Cocada|doce de coco|barra|vendedor de praia
+Maçã|fruta vermelha|Newton|Branca de Neve
+Banana|fruta amarela|macaco|casca escorregadia
+Laranja|fruta cítrica|suco|gomos
+Limão|ácido|caipirinha|verde
+Morango|fruta vermelha|bolo de aniversário|sementes por fora
+Uva|cachos|vinho|passa
+Melancia|verde por fora|vermelha por dentro|verão
+Abacaxi|coroa|tropical|casca espinhosa
+Manga|fruta tropical|amarela|fio nos dentes
+Mamão|fruta alaranjada|papaia|sementes pretas
+Abacate|verde e cremoso|guacamole|vitamina
+Coco|fruta da praia|água|ralado
+Pêssego|fruta macia|calda|veludo
+Pera|fruta verde|formato de sino|olmo
+Cereja|pequena e vermelha|topo do bolo|cabinho
+Kiwi|verde por dentro|peludo|Nova Zelândia
+Goiaba|fruta rosada|doce|Romeu e Julieta
+Maracujá|fruta azeda|calmante|mousse
+Jabuticaba|nasce no tronco|roxa|licor
+Caju|fruta com castanha|Nordeste|pseudofruto
+Cenoura|laranja|coelho|raiz
+Tomate|vermelho|molho|salada
+Alface|folha de salada|verde|crocante
+Cebola|faz chorar|camadas|refogado
+Alho|dentes|tempero|vampiro foge
+Batata|tubérculo|purê|inglês criou chips
+Mandioca|raiz|farinha|aipim
+Milho|espiga|pipoca|grãos amarelos
+Brócolis|verde|árvore em miniatura|saudável
+Abóbora|laranja|Halloween|carruagem de conto de fadas
+Pepino|verde e comprido|salada|conserva
+Pimentão|colorido e oco|vermelho ou verde|recheado
+Beterraba|roxa|suja a mão|açúcar
+Berinjela|roxa|parmegiana|legume brilhante
+Couve|verde escura|feijoada|refogada
+Espinafre|verde|músculos|marinheiro famoso
+Água|líquido essencial|bebe|H2O
+Suco|bebida de fruta|copo|polpa
+Refrigerante|gaseificado|lata|bolhas
+Café|bebida quente|cafeína|acorda
+Chá|infusão|folhas|ervas
+Cerveja|alcoólica|espuma|chopp
+Vinho|uva|taça|adega
+Caipirinha|drinque brasileiro|limão e cachaça|gelo
+Champanhe|estoura|Ano Novo|França
+Whisky|destilado|pedra de gelo|Escócia
+Vodka|destilado|Rússia|incolor
+Cachaça|bebida brasileira|cana|pinga
+Milkshake|bebida cremosa|canudo|sorvete batido
+Vitamina|bebida batida|fruta e leite|liquidificador
+Água de coco|bebida natural|praia|canudo
+Guaraná|refrigerante brasileiro|semente|Amazônia
+Mel|doce natural|abelha|colmeia
+Açúcar|adoça|branco|cubo
+Pimenta|ardida|vermelha|língua pegando fogo
+Ketchup|molho vermelho|batata frita|sachê
+Maionese|molho branco|sanduíche|ovo e óleo
+Mostarda|molho amarelo|cachorro-quente|picante
+Azeite|óleo de oliva|salada|vidro escuro
+Vinagre|ácido|tempero|salada
+Farinha|pó branco|bolo|moída
+Granola|cereal crocante|iogurte|mel e aveia
+Cereal|manhã|leite|tigela
+Bolacha|doce crocante|pacote|recheada
+Biscoito|crocante|lanche|polvilho
+Sopa|prato quente|colher|inverno
+Salada|folhas|dieta|tigela verde
+Risoto|arroz cremoso|italiano|parmesão
+Nhoque|bolinhas de batata|dia 29|italiano
+Empada|salgado de massa podre|palmito|recheio cremoso
+Esfiha|massa aberta|árabe|carne
+Kibe|bolinho árabe|trigo|fritura
+Croissant|massa folhada|França|lua crescente
+Donut|rosquinha|furo no meio|glacê
+Cupcake|bolinho de festa|cobertura|forminha
+Pirulito|doce no palito|chupar|colorido
+Chiclete|mascar|bola|gruda
+Algodão-doce|nuvem rosa|parque|açúcar girando
+Fondue|queijo derretido|espeto|panela
+Taco|tortilha dobrada|mexicano|recheio
+Burrito|tortilha enrolada|mexicano|feijão e carne
+Rabanada|fatia frita|ceia de Natal|calda de açúcar
+Panetone|pão de festa|frutas cristalizadas|ceia
+Peixe frito|petisco|beira-mar|isca
+Camarão empanado|frito|crocante|aperitivo
+Strudel|massa folhada|maçã|Áustria
+Churros|palito frito|doce de leite|canela
+Mortadela|embutido rosado|sanduíche gigante|bolonha
+`});
+DATA.push({c:"Objetos e Casa",t:`Cadeira|sentar|quatro pernas|dança musical
+Mesa|apoio plano|jantar|toalha
+Sofá|sala|assistir TV|almofadas
+Cama|dormir|colchão|lençol
+Travesseiro|apoia a cabeça|fronha|penas
+Cobertor|esquenta|inverno|manta
+Colchão|em cima do estrado|mola|dormir bem
+Armário|guarda coisas|porta|cozinha ou quarto
+Geladeira|gela|comida|ímã
+Fogão|cozinha|bocas|fogo
+Micro-ondas|aquece rápido|prato girando|pipoca
+Liquidificador|bate|jarra|vitamina
+Batedeira|mistura bolo|massa|cozinha
+Torradeira|aquece pão|fatias|pula
+Panela|cozinha|tampa|pressão
+Frigideira|frita|cabo|ovo
+Faca|corta|lâmina|churrasco
+Garfo|espeta|talher|dentes
+Colher|sopa|talher|concha
+Prato|come|louça|mesa posta
+Copo|bebe|vidro|brinde
+Xícara|café|pires|alça
+Garrafa|líquido|tampa|mensagem no mar
+Jarra|suco|alça|servir
+Tábua de corte|apoio para cortar|madeira|cozinha
+Ralador|queijo|lâmina fina|cozinha
+Escorredor|macarrão|furos|pia
+Abridor de latas|abre conservas|cozinha|metal
+Chaleira|esquenta água|apita|chá
+Cafeteira|faz café|filtro|manhã
+Espelho|reflexo|moldura|banheiro
+Escova de dentes|higiene|cerdas|boca
+Pasta de dente|creme dental|tubo|espuma
+Sabonete|banho|espuma|barra
+Shampoo|cabelo|espuma|frasco
+Toalha|seca|banho|rosto
+Chuveiro|água quente|banho|ducha
+Vaso sanitário|banheiro|descarga|tampa
+Pia|lavar|torneira|cuba
+Banheira|banho de imersão|espuma|patinho de borracha
+Ralo|escoa|água|banheiro
+Vassoura|varre|cabo|bruxa
+Rodo|puxa a água|limpeza|chão molhado
+Balde|carrega água|alça|areia
+Esponja|lava|louça|amarela
+Aspirador|suga|poeira|barulhento
+Ferro de passar|alisa|roupa|quente
+Máquina de lavar|roupa suja|centrifuga|sabão
+Varal|seca roupa|pregador|corda
+Cabide|pendura|roupa|armário
+Guarda-roupa|quarto|portas|roupas
+Cortina|janela|tecido|fecha a luz
+Tapete|chão|sala|felpudo
+Almofada|sofá|macia|enfeite
+Abajur|luz de cabeceira|quarto|cúpula
+Lâmpada|ilumina|bocal|ideia
+Ventilador|hélice|verão|vento
+Ar-condicionado|gela|parede|controle
+Relógio|horas|ponteiro|pulso
+Despertador|toca|acorda|cedo
+Calendário|dias|parede|meses
+Quadro|parede|moldura|arte
+Vaso|planta|barro|flor
+Chave|abre a porta|fechadura|porta trancada
+Cadeado|tranca|chave|corrente
+Porta|entrada|maçaneta|abre e fecha
+Janela|vidro|vista|persiana
+Escada|sobe|degraus|corrimão
+Telhado|cobre a casa|telha|gato passeia
+Chaminé|fumaça|lareira|Papai Noel
+Campainha|toca|portão|visita
+Capacete|protege a cabeça|moto|obra
+Capacho|na porta|limpa os pés|bem-vindo
+Lixeira|joga fora|tampa|rua
+Caixa de correio|cartas|porta de casa|carteiro
+Guarda-chuva|chuva|abre e fecha|haste
+Mochila|escola|alças|costas
+Bolsa|carrega objetos|alça|feminina
+Carteira|guarda dinheiro|documentos|bolso
+Óculos|enxergar|lentes|armação
+Caneta|escreve|tinta|esferográfica
+Lápis|grafite|desenha|apontador
+Borracha|apaga|escola|esfrega
+Caderno|folhas|escola|anotações
+Livro|páginas|leitura|capa
+Régua|mede|centímetros|escola
+Tesoura|corta|papel|lâminas
+Cola|gruda|tubo|papel
+Grampeador|prende folhas|escritório|grampos
+Clipe|prende papel|metal|escritório
+Fita adesiva|cola|rolo|embrulho
+Martelo|prego|bater|ferramenta
+Prego|pendura|metal|martelo
+Parafuso|rosca|aperta|chave
+Chave de fenda|ferramenta|gira|parafuso
+Serra|corta madeira|dentes|carpinteiro
+Furadeira|fura|parede|barulho
+Alicate|ferramenta|aperta|pinça
+Lanterna|luz portátil|pilhas|escuro
+Pilha|energia|controle|cilíndrica
+Vela|cera|pavio|aniversário
+Isqueiro|chama|fumante|acende
+Fósforo|risca|caixinha|chama
+Bússola|aponta o norte|ponteiro|navegação
+Mapa|caminhos|papel|legenda
+Binóculo|vê longe|duas lentes|observador
+Lupa|aumenta|detetive|vidro
+Moeda|centavos|cara ou coroa|metal
+Dinheiro|compra|nota|banco
+Cartão de crédito|compra parcelada|fatura|plástico
+Cofrinho|guarda moedas|porquinho|poupança
+Balão|bola de ar|festa|estoura
+Bola|esporte|redonda|chute
+Boneca|brinquedo|cabelo|casinha
+Quebra-cabeça|peças|montar|imagem
+Controle remoto|muda canal|botões|sofá
+Travesseiro de pescoço|viagem|avião|apoio
+Mala|viagem|rodinhas|bagagem
+Pente|cabelo|dentes finos|bolso de trás
+Escova de cabelo|cerdas|penteia|banheiro
+Secador|cabelo|ar quente|salão
+Tomada|energia|parede|plugue
+Extensão|régua de tomadas|fio|filtro de linha
+Cesto de roupa|roupa suja|banheiro|palha
+Saco de lixo|descarte|preto|lixeira
+Pregador|prende roupa|varal|madeira
+Sacola|compras|supermercado|plástico
+Estante|livros|prateleiras|sala
+`});
+DATA.push({c:"Lugares",t:`Escola|aprende|sala de aula|uniforme e recreio
+Universidade|ensino superior|campus|vestibular
+Biblioteca|livros|silêncio|empréstimo
+Hospital|doentes|médicos|ambulância
+Farmácia|remédios|balconista|cruz verde
+Padaria|pão quente|manhã|balcão
+Supermercado|carrinho|corredores|caixa
+Shopping|lojas|praça de alimentação|ar-condicionado
+Mercado|barracas|frutas e verduras|pechincha
+Feira|barraca|pastel e caldo de cana|manhã de domingo
+Açougue|carnes|balcão|gancho
+Restaurante|cardápio|garçom|reserva
+Lanchonete|lanches|balcão|milkshake
+Bar|bebidas|mesas|happy hour
+Boate|dança|luzes|fila na porta
+Cinema|filme|pipoca|poltronas
+Teatro|peça|palco|cortina vermelha
+Museu|exposição|obras|silêncio e guia
+Zoológico|animais|jaulas|passeio escolar
+Parque|árvores|piquenique|passeio
+Praça|banco|pombos|centro da cidade
+Estádio|jogo|torcida|arquibancada
+Ginásio|quadra|esportes|apito
+Academia|musculação|esteira|halteres
+Piscina|nadar|cloro|verão
+Clube|associados|lazer|churrasqueira
+Igreja|fiéis|sino|missa
+Templo|reza|sagrado|silêncio
+Cemitério|túmulos|silêncio|flores e velas
+Prefeitura|governo local|cidade|prefeito
+Delegacia|polícia|boletim|cela
+Banco|dinheiro|fila|caixa eletrônico
+Correios|cartas|encomendas|selo
+Aeroporto|voos|embarque|pista
+Rodoviária|ônibus|passagens|plataformas
+Estação de metrô|subterrânea|catraca|trem
+Porto|navios|containers|cais
+Posto de gasolina|combustível|bomba|loja de conveniência
+Oficina|conserto|mecânico|carro levantado
+Hotel|hospedagem|recepção|quartos
+Pousada|hospedagem simples|café da manhã|praia ou serra
+Camping|barraca|acampar|sacos de dormir
+Fazenda|gado|campo|trator
+Sítio|pequena propriedade rural|galinhas|fim de semana
+Castelo|torres|rei|fosso
+Palácio|residência real|luxo|guarda
+Prisão|presos|grades|cela
+Fábrica|produção|esteira|chaminé
+Escritório|mesa|computador|reunião
+Laboratório|experimentos|jaleco|tubo de ensaio
+Cozinha|fogão|geladeira|receita
+Sala de estar|sofá|TV|visitas
+Quarto|cama|armário|descanso
+Banheiro|chuveiro|pia|vaso
+Garagem|carro|portão|bagunça
+Quintal|casa|grama|varal
+Varanda|área aberta|rede|vista
+Sótão|alto da casa|poeira|baú
+Porão|abaixo da casa|escuro|vinhos
+Elevador|sobe e desce|botões|música de espera
+Corredor|passagem|comprido|portas
+Torre|alta|sino|mirante
+Ponte|liga dois lados|rio|pedestres
+Túnel|passagem subterrânea|escuro|luz no final
+Rua|asfalto|calçada|carros
+Avenida|rua larga|trânsito|faixas
+Estrada|rodovia|pedágio|viagem
+Esquina|encontro de ruas|placa|semáforo
+Paris|cidade luz|França|romance
+Rio de Janeiro|cidade maravilhosa|Cristo|praia
+São Paulo|maior cidade do Brasil|trânsito|garoa
+Nova York|Estados Unidos|arranha-céus|Estátua da Liberdade
+Londres|capital inglesa|ponte famosa|chuva
+Tóquio|capital japonesa|neon|mais populosa do mundo
+Roma|capital italiana|Coliseu|todos os caminhos levam
+Egito|pirâmides|faraós|Nilo
+Japão|ilhas orientais|sushi|samurai
+Itália|bota|pizza|Vaticano dentro
+Portugal|Lisboa|fado|língua em comum
+Argentina|vizinho do Brasil|tango|Buenos Aires
+Estados Unidos|Washington|América do Norte|50 estrelas
+China|muralha|Pequim|dragão
+Índia|Taj Mahal|especiarias|vacas sagradas
+Antártida|polo sul|gelo|pinguins
+Cristo Redentor|monumento|braços abertos|Corcovado
+Torre Eiffel|ferro|Paris|símbolo francês
+Pirâmides|faraós|desertos|tumbas
+Muralha da China|longa construção|visível do espaço (mito)|dinastias
+Coliseu|arena romana|gladiadores|ruínas
+Machu Picchu|ruínas incas|Peru|cidade nas nuvens
+Las Vegas|cassinos|deserto|luzes
+Hollywood|cinema|estrelas|letreiro
+Salvador|Bahia|Pelourinho|capital baiana
+Veneza|canais|gôndolas|Itália
+Hawaí|ilhas|surfe|colar de flores
+Marte|planeta vermelho|exploração|sondas
+Praça de alimentação|fast food|mesas|shopping
+Sala de aula|alunos|quadro|professor
+Estacionamento|vagas|carros|cancela
+Parque aquático|toboágua|piscinas|verão
+Aquário|peixes|vidro|tanques
+Planetário|céu projetado|astronomia|cúpula
+Salão de beleza|cabelo|espelhos|manicure
+Barbearia|barba|navalha|cadeira giratória
+Lavanderia|roupa suja|máquinas|sabão
+Cartório|documentos|carimbo|reconhecer firma
+`});
+DATA.push({c:"Profissões",t:`Médico|cuida de doentes|jaleco|estetoscópio
+Enfermeiro|ajuda o médico|hospital|plantão
+Dentista|dentes|consultório|broca
+Veterinário|cuida de bichos|clínica|vacina de pet
+Professor|ensina|giz|prova
+Advogado|defende|tribunal|OAB
+Juiz|julga|martelo|toga
+Policial|prende|farda|sirene
+Bombeiro|apaga fogo|mangueira|resgate
+Soldado|exército|farda|quartel
+Piloto|dirige avião|cabine|asas
+Comissário de bordo|serve no voo|uniforme|instruções de segurança
+Motorista|dirige|volante|ônibus ou carro
+Caminhoneiro|estrada|carga|boleia
+Taxista|corre a cidade|bandeirada|ponto
+Entregador|leva pedidos|moto ou bike|bolsa térmica
+Carteiro|entrega cartas|bicicleta|bolsa
+Padeiro|faz pão|madrugada|forno
+Açougueiro|corta carne|avental|balança
+Cozinheiro|prepara pratos|cozinha|chapéu alto
+Garçom|serve mesas|bandeja|gorjeta
+Barista|faz café|máquina|latte art
+Bartender|faz drinques|coqueteleira|balcão
+Cabeleireiro|corta cabelo|tesoura|salão
+Manicure|unhas|esmalte|lixa
+Maquiador|maquiagem|pincel|noivas
+Costureiro|agulha|linha|tecido
+Alfaiate|ternos sob medida|fita métrica|ateliê
+Sapateiro|conserta sapatos|cola|ferramentas
+Pedreiro|constrói|tijolo|cimento
+Carpinteiro|madeira|serra|móveis
+Eletricista|instala fios|choque|fusível
+Encanador|canos|vazamento|chave inglesa
+Pintor|tinta|rolo|parede
+Mecânico|conserta carros|oficina|graxa
+Engenheiro|projeta|cálculo|obra
+Arquiteto|desenha construções|planta|maquete
+Programador|escreve código|computador|bug
+Designer|cria visuais|criativo|paleta
+Fotógrafo|clica|câmera|ensaio
+Jornalista|notícias|reportagem|entrevista
+Escritor|livros|caneta|inspiração
+Cantor|voz|palco|microfone
+Músico|instrumento|banda|partitura
+Ator|interpreta|set|roteiro
+Diretor|comanda filmagens|claquete|ação
+Dançarino|coreografia|ritmo|palco
+Palhaço|nariz vermelho|circo|riso
+Mágico|truques|cartola|coelho
+Atleta|treina|competição|medalha
+Árbitro|apita|cartões|campo
+Treinador|orienta time|prancheta|vestiário
+Personal trainer|treino individual|academia|metas
+Nutricionista|alimentação|dieta|consulta
+Psicólogo|escuta|terapia|divã
+Fisioterapeuta|reabilita|maca|lesões
+Farmacêutico|remédios|balcão|receita
+Cientista|pesquisa|laboratório|descobertas
+Astronauta|espaço|traje|foguete
+Detetive|investiga|lupa|pistas
+Espião|agente secreto|disfarce|007
+Segurança|vigia|portaria|rádio
+Faxineiro|limpeza|balde|rodo
+Jardineiro|cuida de plantas|tesoura de poda|grama
+Agricultor|planta|colheita|campo
+Pescador|rede|barco|isca
+Marinheiro|navio|mar|âncora
+Bibliotecário|livros|silêncio|catálogo
+Contador|números|impostos|balanço
+Banqueiro|finanças|empréstimos|cofre
+Vendedor|oferece produtos|comissão|loja
+Político|eleições|mandato|discurso
+Prefeito|cidade|eleito|gabinete
+Presidente|país|faixa|palácio
+Rei|coroa|reino|trono
+Padre|igreja|batina|missa
+Youtuber|vídeos|canal|inscritos
+Influenciador|redes sociais|seguidores|publi
+Streamer|ao vivo|jogos|chat
+Dublador|voz|estúdio|desenho animado
+Zelador|prédio|manutenção|chaves
+Porteiro|portaria|interfone|recebe visitas
+Salva-vidas|praia|resgate|boia
+Guia turístico|mostra a cidade|grupo|bandeirinha
+Tatuador|agulha|pele|estúdio
+Pizzaiolo|forno a lenha|massa|rodízio
+Produtor|organiza|bastidores|show ou filme
+Mestre de obras|supervisiona|capacete|andaime
+Doula|acompanha parto|gestantes|apoio
+Leiloeiro|vende em lance|martelo|dou-lhe uma
+`});
+DATA.push({c:"Esportes e Lazer",t:`Futebol|bola|gol|campo
+Basquete|cesta|quadra|enterrada
+Vôlei|rede|saque|areia ou quadra
+Tênis|raquete|quadra de saibro|Wimbledon
+Natação|piscina|nado|raia
+Atletismo|corrida|pista|saltos
+Judô|kimono|tatame|faixa
+Karatê|artes marciais|kimono|golpes
+Boxe|luvas|ringue|nocaute
+Jiu-jitsu|luta de chão|kimono|finalização
+Capoeira|roda|berimbau|ginga
+Ginástica|acrobacias|aparelhos|tapete
+Surfe|prancha|ondas|tubo
+Skate|manobras|rodinhas|pista
+Patinação|patins|gelo|giros
+Ciclismo|bicicleta|pedal|corrida
+Corrida|tênis|pista|fôlego
+Maratona|42 quilômetros|resistência|Grécia antiga
+Golfe|tacos|buraco|green
+Beisebol|taco e luva|Estados Unidos|home run
+Rúgbi|bola oval|Nova Zelândia|scrum
+Handebol|bola nas mãos|gol pequeno|quadra
+Hóquei|disco|gelo|bastão
+Esqui|neve|montanha|bastões
+Snowboard|prancha na neve|montanha|manobras
+Escalada|montanha|corda|presa
+Pesca|vara|isca|paciência
+Caminhada|passos|trilha|ar livre
+Yoga|alongamento|meditação|posturas
+Pilates|fortalece|bola|aparelhos
+Xadrez|tabuleiro|rei e rainha|xeque-mate
+Damas|tabuleiro|peças pretas e brancas|pular peças
+Dominó|peças|pontos|mesa
+Baralho|cartas|naipes|valete
+Truco|jogo de cartas|grito|zap
+Poker|apostas|blefe|fichas
+Bingo|cartela|números|grito
+Dados|cubos|sorte|seis faces
+Pipa|papagaio|linha|céu
+Pega-pega|brincadeira|correr|tocar
+Esconde-esconde|brincadeira|contar|achar
+Amarelinha|pular|giz|céu
+Bambolê|girar|cintura|argola
+Pula-corda|saltar|corda|infância
+Gangorra|sobe e desce|parque|duas pessoas
+Escorregador|descida|parque|criança
+Balanço|vai e volta|corrente|parque
+Carrossel|giratório|cavalinhos|parque
+Montanha-russa|trilhos|medo|parque
+Roda-gigante|giro vertical|vista alta|parque
+Parque de diversões|brinquedos|algodão-doce|ingresso
+Circo|lona|palhaço|trapezista
+Gol|rede|comemoração|goleiro
+Pênalti|disputa|marca|cobrança
+Escanteio|canto do campo|bola|cobrança
+Cartão vermelho|expulsão|árbitro|saída de campo
+Apito|som agudo|árbitro|início de jogo
+Troféu|taça|campeão|pódio
+Campeonato|disputa|tabela|rodadas
+Copa do Mundo|quatro anos|seleções|fase de grupos
+Olimpíadas|jogos mundiais|chama|medalhas
+Torcida|arquibancada|cantos|bandeiras
+Chuteira|calçado de jogo|travas|campo
+Raquete|bate na bola|cordas|tênis
+Cesta|aro|bola laranja|pontos
+Prancha|surfe|deslizar|remar
+Remo|barco|braços|raia
+Canoa|rio|pá|equilíbrio
+Mergulho|mar|cilindro|peixes
+Paraquedismo|salto|céu|altitude
+Bungee jump|salto elástico|ponte|corda
+Acampamento|barraca|fogueira|natureza
+Piquenique|toalha|cesta|parque
+Karaokê|cantar|microfone|letra na tela
+Videogame|controle|tela|fases
+Festa|música|convidados|comemoração
+Aniversário|bolo|parabéns|um ano a mais
+Casamento|noivos|alianças|buquê
+Carnaval|fantasias|bloco|Brasil
+Natal|presentes|árvore|ceia
+Réveillon|virada|fogos|Ano Novo
+Festa junina|bandeirinhas|quadrilha|São João
+Páscoa|ovos|coelho|chocolate
+Halloween|fantasias|doces|abóbora
+Cartas de tarô|futuro|mesa|místico
+Boliche|pinos|pista|strike
+Sinuca|taco|caçapa|mesa verde
+Pingue-pongue|raquetinhas|mesa|bolinha
+Paintball|tinta|equipamento|time
+Rafting|corredeira|bote|aventura
+Slackline|fita esticada|equilíbrio|parque
+Parkour|saltos urbanos|obstáculos|prédios
+Maratona de séries|sofá|episódios|noite inteira
+`});
+DATA.push({c:"Tecnologia",t:`Celular|telefone móvel|tela|aplicativos
+Computador|teclado e mouse|processador|trabalho
+Notebook|computador portátil|tela dobrável|bateria
+Tablet|tela grande|toque|leitura
+Teclado|teclas|digitar|letras
+Mouse|clicar|ponteiro|botão
+Monitor|tela|computador|imagem
+Impressora|papel|tinta|cartucho
+Câmera|fotos|lente|flash
+Fone de ouvido|música|cabo|orelha
+Caixa de som|música alta|bluetooth|graves
+Microfone|capta voz|palco|gravar
+Televisão|programas|tela|controle
+Robô|máquina|automático|metal
+Drone|voa|câmera|hélices
+Satélite|orbita|sinal|espaço
+Foguete|decola|combustível|astronauta
+Internet|conecta|sites|rede mundial
+Wi-Fi|sem fio|roteador|senha
+Bluetooth|conexão curta|fones|pareamento
+Senha|segredo|acesso|caracteres
+E-mail|mensagem|caixa de entrada|arroba
+Aplicativo|programa de celular|loja|ícone
+Site|página|internet|endereço
+Redes sociais|curtidas|perfil|feed
+Selfie|foto de si mesmo|celular|braço esticado
+Emoji|carinha|mensagem|amarelo
+Meme|piada da internet|viral|imagem
+Hashtag|símbolo|tópico|jogo da velha
+Vídeo|imagens em movimento|play|edição
+Podcast|áudio|episódios|entrevista
+Streaming|assistir online|filmes|assinatura
+Algoritmo|passos|código|recomendações
+Inteligência artificial|máquina que aprende|respostas|robôs
+Bateria|carga|energia|acaba na hora errada
+Carregador|energia|cabo|tomada
+Cabo USB|conecta aparelhos|pontas|carga
+Pen drive|armazena arquivos|pequeno|porta
+Processador|cérebro do computador|chip|velocidade
+Placa de vídeo|gráficos|jogos|computador
+Servidor|armazena sites|rede|nuvem
+Hacker|invade sistemas|código|capuz
+Vírus|infecta|computador|contágio
+Realidade virtual|óculos|imersão|jogos
+Impressora 3D|imprime objetos|plástico|camadas
+QR Code|quadradinho|escanear|câmera
+GPS|localização|rotas|satélites
+Radar|detecta|velocidade|pulso
+Calculadora|números|soma|botões
+Scanner|digitaliza|documento|luz
+Smartwatch|relógio inteligente|pulso|notificações
+Câmera de segurança|vigia|gravação|prédio
+Alarme|sirene|segurança|sensor
+Interfone|portaria|apartamento|chama
+Telefone|ligações|fio|discar
+Rádio|ondas|frequência|FM
+Walkie-talkie|comunicação|rádio portátil|câmbio
+Painel solar|energia do sol|telhado|placa
+Turbina eólica|vento|pás|energia limpa
+Energia elétrica|luz|fios|conta
+Interruptor|liga e desliga|parede|luz
+Fio|condutor|cobre|elétrico
+Joystick|controle de jogo|alavanca|botões
+Smart TV|televisão conectada|aplicativos|internet
+Roteador|distribui internet|antenas|luzes piscando
+Webcam|câmera do computador|videochamada|reunião
+Videochamada|conversa com imagem|tela|conexão
+Câmera de ação|esportes radicais|capacete|à prova d'água
+Leitor de digital|biometria|dedo|acesso
+Cartão de memória|guarda fotos|pequeno|câmera
+Placa-mãe|base do computador|circuitos|encaixes
+Ventoinha|esfria|computador|giro
+Banco de dados|informações|tabelas|consultas
+Terminal|linha de comando|tela preta|programador
+Pixel|ponto da tela|resolução|cor
+`});
+DATA.push({c:"Cultura e Fantasia",t:`Violão|seis cordas|serenata|roda de amigos
+Piano|teclas pretas e brancas|concerto|pianista
+Bateria musical|baquetas|pratos|ritmo da banda
+Flauta|sopro|doce ou transversal|encantador de serpentes
+Violino|arco|cordas|orquestra
+Trompete|metal|sopro|jazz
+Saxofone|sopro dourado|jazz|curvo
+Tambor|baqueta|batida|desfile
+Pandeiro|samba|platinelas|roda
+Sanfona|forró|fole|Nordeste
+Berimbau|capoeira|arame|cabaça
+Cavaquinho|samba|pequeno|quatro cordas
+Orquestra|maestro|vários instrumentos|concerto
+Banda|conjunto musical|palco|ensaio
+Show|apresentação|ingresso|plateia
+Festival|vários artistas|multidão|barracas
+Ópera|canto lírico|teatro|soprano
+Balé|sapatilhas|dança clássica|tutu
+Samba|ritmo brasileiro|escola|tamborim
+Funk|batida forte|baile|favela de origem
+Sertanejo|viola|dupla|interior
+Forró|dança a dois|sanfona|São João
+Rock|guitarra|bateria|rebeldia
+Pagode|roda|cavaquinho|fim de semana
+Axé|Bahia|trio elétrico|carnaval
+Hip-hop|rap|batalha|grafite
+Pintura|tela|pincel|tinta
+Escultura|esculpir|pedra|museu
+Desenho|lápis|traços|papel
+Grafite|arte de rua|spray|muro
+Fotografia|clique|câmera|retrato
+Poema|versos|rimas|poeta
+Romance|livro de história|amor|capítulos
+Quadrinhos|balões de fala|super-heróis|gibi
+Mangá|quadrinhos japoneses|leitura invertida|anime
+Filme|cinema|roteiro|cena
+Série|episódios|temporadas|maratona
+Novela|capítulos|vilã|horário nobre
+Desenho animado|criança|animação|manhã de TV
+Documentário|fatos reais|narrador|natureza ou história
+Comédia|riso|piada|stand-up
+Terror|medo|susto|noite escura
+Ficção científica|futuro|robôs|naves
+Palco|artistas|cortina|luzes
+Plateia|público|cadeiras|aplausos
+Ingresso|bilhete|entrada|fila
+Máscara|rosto|carnaval|disfarce
+Fantasia de festa|roupa temática|carnaval|criatividade
+Camarim|espelho com luzes|artista|bastidores
+Oscar|estatueta|premiação|cinema
+Tapete vermelho|famosos|premiação|flashes
+Autógrafo|assinatura|fã|famoso
+Enciclopédia|volumes|conhecimento|verbetes
+Dicionário|palavras|significados|ordem alfabética
+Jornal|notícias|manchete|banca
+Revista|colorida|publicação|banca
+Poesia|versos|sentimentos|rima
+Mitologia|deuses|lendas|gregos
+Lenda|história antiga|folclore|boca a boca
+Fábula|animais que falam|moral|Esopo
+Conto de fadas|era uma vez|princesas|final feliz
+Princesa|castelo|coroa|conto
+Príncipe|herdeiro|cavalo branco|sapato
+Bruxa|vassoura|poção|chapéu pontudo
+Fada|varinha|asas|pó mágico
+Gigante|muito alto|passos pesados|feijão mágico
+Dragão|cospe fogo|escamas|cavaleiro
+Fantasma|assombra|lençol|invisível
+Vampiro|capa|presas|noite
+Zumbi|morto-vivo|cérebro|apocalipse
+Lobisomem|lua cheia|pelos|uivo
+Sereia|metade peixe|canto|mar
+Unicórnio|chifre|cavalo mágico|arco-íris
+Saci|uma perna só|folclore|redemoinho
+Curupira|pés virados|floresta|protetor
+Iara|mãe-d'água|canto|rio
+Papai Noel|presentes|barba branca|chaminé
+Coelhinho da Páscoa|ovos de chocolate|orelhas|cesta
+Pirata|tapa-olho|navio|tesouro
+Tesouro|baú|ouro|mapa
+Cavaleiro|armadura|espada|cavalo
+Super-herói|capa|poderes|salva o dia
+Vilão|maldade|plano|capa preta
+Mágico de circo|truques|cartola|varinha
+Gênio da lâmpada|três desejos|lâmpada|fumaça azul
+Alienígena|vem de outro planeta|nave|ET
+Sombra|escuridão|projeção|segue você
+Sonho|dormindo|imagens|acordar
+Mistério|enigma|pistas|suspense
+Aventura|viagem perigosa|herói|descobertas
+Herói|salva|coragem|destino
+Palhaçada|piada física|circo|bagunça
+Vitrola|disco|agulha|antiguidade
+Disco de vinil|música antiga|agulha|lado A
+Rádio antigo|válvulas|ondas|noticiário
+Ventríloquo|boneco|voz|palco
+`});
+DATA.push({c:"Transportes",t:`Carro|quatro rodas|volante|garagem
+Moto|duas rodas|capacete|entregas rápidas
+Bicicleta|pedal|duas rodas|ciclovia
+Ônibus|transporte coletivo|ponto|catraca
+Caminhão|carga|estrada|baú
+Trem|trilhos|vagões|apito
+Metrô|subterrâneo|linhas|bilhete
+Avião|voa|aeroporto|turbina
+Helicóptero|hélice no topo|heliponto|resgate
+Barco|navega|remos ou motor|rio
+Navio|oceano|cruzeiro|âncora
+Submarino|debaixo d'água|periscópio|fundo do mar
+Jangada|tábuas|Nordeste|pescador
+Balsa|travessia|carros|rio
+Lancha|rápida|mar|motor
+Jet ski|moto aquática|ondas|velocidade
+Patinete|elétrico|guidão|calçada
+Carroça|puxada por cavalo|rural|rodas de madeira
+Trator|fazenda|pneus grandes|plantação
+Ambulância|resgate|sirene|socorro
+Táxi|corrida|taxímetro|ponto
+Balão de ar quente|cesto|céu|chama
+Nave espacial|cosmos|astronautas|ficção
+Teleférico|cabos|vista|montanha
+Bonde|trilhos na cidade|antigo|Santa Teresa
+Triciclo|três rodas|criança|pedais
+Carrinho de compras|supermercado|rodinhas|cesto
+Cadeira de rodas|mobilidade|rodas|assento
+Passaporte|viagem|carimbo|documento
+Passagem|bilhete|viagem|embarque
+Bagagem|malas|esteira|despacho
+Pedágio|cabine|taxa|estrada
+Semáforo|vermelho|verde|cruzamento
+Faixa de pedestre|zebra|travessia|rua
+Cinto de segurança|prende|carro|clique
+Buzina|som|trânsito|apertar
+Pneu|borracha|roda|calibrar
+Volante|dirige|redondo|carro
+Freio|para|pedal|segurança
+Estacionamento de rua|vagas|flanelinha|meio-fio
+Caminhonete|carroceria aberta|rural|fazenda
+Kombi|furgão antigo|hippie|clássica
+Trólebus|ônibus elétrico|fios|cidade
+Navio pirata|bandeira negra|mastros|piratas
+Canoa havaiana|remo|oceano|ilhas
+`});
+DATA.push({c:"Roupas e Moda",t:`Camiseta|manga curta|algodão|estampa
+Camisa|botões|colarinho|social
+Calça|pernas|jeans|cinto
+Bermuda|até o joelho|verão|praia
+Short|curto|calor|academia
+Saia|cintura|pernas|comprimento
+Vestido|peça única|festa|barra
+Casaco|frio|zíper|inverno
+Jaqueta|couro ou jeans|ziper|motoqueiro
+Moletom|capuz|confortável|frio leve
+Blusa|parte de cima|manga|feminina
+Gravata|pescoço|nó|terno
+Terno|formal|paletó e calça|casamento
+Paletó|formal|botões|executivo
+Colete|sem mangas|proteção|alfaiataria
+Meia|pés|par|desaparece na máquina
+Sapato|social|couro|cadarço
+Tênis de corrida|calçado esportivo|cadarço|solado
+Chinelo|praia|dedo|havaianas
+Sandália|aberta|pés|verão
+Bota|cano alto|couro|chuva
+Salto alto|elegante|dor nos pés|festa
+Chapéu|cabeça|aba|cowboy
+Boné|aba|cabeça|sol
+Gorro|lã|inverno|cabeça
+Touca de natação|cabeça|piscina|silicone
+Cachecol|pescoço|lã|inverno
+Luvas|mãos|frio|dedos
+Cinto|cintura|fivela|calça
+Óculos de sol|sol|lentes escuras|praia
+Relógio de pulso|horas|pulseira|mostrador
+Brinco|orelhas|joia|par
+Colar|pescoço|joia|pingente
+Pulseira|braço|joia|charms
+Anel|dedo|joia|aliança
+Aliança|casamento|dedo|compromisso
+Biquíni|praia|duas peças|verão
+Sunga|praia|homem|banho de mar
+Maiô|peça única|piscina|natação
+Pijama|dormir|conforto|noite
+Roupão|banho|felpudo|saindo do chuveiro
+Avental|cozinha|protege roupa|cozinheiro
+Jaleco|médico|branco|laboratório
+Perfume|cheiro|frasco|spray
+Batom|lábios|vermelho|maquiagem
+Esmalte|unhas|colorido|manicure
+Rímel|cílios|maquiagem|preto
+Peruca|cabelo falso|disfarce|careca
+Lenço|tecido|pescoço|nariz
+Fralda|bebê|troca|descartável
+Chupeta|bebê|bico|acalma
+Mamadeira|bebê|leite|bico
+Meia-calça|cobre pernas|transparente|inverno
+Sobretudo|casaco longo|inverno|elegante
+Kimono|japonês|largo|faixa
+Poncho|andino|frio|aberto
+Camisola|dormir|feminina|rendada
+Cueca|íntima|homem|elástico
+Uniforme escolar|escola|padronizado|brasão
+Fantasia de super-herói|capa|criança|festa
+Capa de chuva|chuva|plástico|capuz
+Tiara|cabeça|enfeite|princesa
+Gravata-borboleta|formal|pescoço|garçom
+Smoking|gala|preto|baile
+Véu|noiva|rosto|igreja
+Mochila de viagem|nas costas|bagagem|mochileiro
+`});
+DATA.push({c:"Corpo e Saúde",t:`Coração|bate|peito|amor
+Cérebro|pensa|cabeça|neurônios
+Pulmão|respira|oxigênio|dois
+Estômago|digere|barriga|ácido
+Fígado|filtra|órgão|ressaca
+Rim|filtra o sangue|dois|urina
+Osso|esqueleto|branco|fratura
+Músculo|força|academia|bíceps
+Pele|cobre o corpo|toque|bronzeada
+Cabelo|cabeça|fios|penteado
+Unha|dedos|esmalte|cresce
+Dente|mastiga|boca|dentista
+Língua|dentro da boca|sabor|fala
+Olho|enxerga|pálpebra|pupila
+Nariz|cheira|narinas|rosto
+Orelha|escuta|brinco|lateral da cabeça
+Boca|fala e come|lábios|dentes
+Pescoço|liga cabeça e corpo|colar|torcicolo
+Ombro|braço|cabide|carregar peso
+Cotovelo|dobra do braço|osso engraçado|batida
+Joelho|dobra da perna|ralado|ajoelhar
+Tornozelo|pé|torce|meia
+Dedo|mão|anel|polegar
+Mão|aperto|cinco dedos|aplauso
+Pé|chão|chulé|calçado
+Barriga|abdômen|umbigo|cerveja
+Umbigo|cicatriz|barriga|cordão
+Costas|coluna|nuas|massagem
+Barba|queixo|pelos|navalha
+Bigode|acima da boca|pelos|chaplin
+Sobrancelha|acima do olho|arco|depilar
+Cílios|olhos|longos|rímel
+Suor|calor|gotas|exercício
+Lágrima|choro|olho|emoção
+Sangue|vermelho|veias|doação
+Febre|termômetro|temperatura|doença
+Gripe|nariz entupido|inverno|resfriado
+Tosse|garganta|xarope|barulho
+Espirro|atchim|alergia|nariz
+Soluço|diafragma|susto|água atrás da orelha
+Bocejo|sono|boca aberta|contagioso
+Cócegas|risada|toque|axilas
+Dor de cabeça|enxaqueca|remédio|latejando
+Vacina|agulha|proteção|carteirinha
+Curativo|machucado|band-aid|proteção
+Remédio|cura|receita|comprimido
+Termômetro|temperatura|febre|axila
+Muleta|apoio|perna quebrada|axilas
+Gesso|osso quebrado|assinaturas|braço
+Raio-X|ossos|chapa|radiografia
+Aparelho nos dentes|ferros|sorriso|ortodontista
+Sono|descanso|noite|cama
+Pesadelo|sonho ruim|noite|acordar assustado
+Ronco|barulho ao dormir|nariz|cobertor na cabeça
+Cicatriz|marca na pele|corte antigo|história
+Pinta|marca na pele|escura|rosto
+Sarda|manchinhas|rosto|sol
+Covinha|rosto|sorriso|bochecha
+Calo|pé|dureza|sapato apertado
+Bolha|pele|água|sapato novo
+Hematoma|roxo|batida|pancada
+Resfriado|nariz escorrendo|chá|lenço
+Alergia|coceira|espirros|pólen
+Check-up|exames|rotina médica|jejum
+Maca|leva pacientes|hospital|rodinhas
+Soro|hospital|veia|bolsa pendurada
+Estetoscópio|ouvir coração|médico|pescoço
+Cadeira de dentista|consultório|boca aberta|luz forte
+`});
+DATA.push({c:"Adulto 18+",adult:true,t:`Beijo|lábios|romance|selinho ou de cinema
+Beijo de língua|beijo molhado|pegação|francês
+Namoro|casal|compromisso|pedido no jantar
+Paquera|olhares|flerte|encontro
+Lua de mel|viagem de casal|depois do casamento|quarto decorado
+Lingerie|roupa íntima sensual|renda|noite especial
+Cueca samba-canção|íntima|tecido solto|dormir
+Calcinha|íntima|feminina|gaveta
+Sutiã|íntima|alças|bojo
+Fio dental|íntimo|minúsculo|praia
+Cinta-liga|meia presa|lingerie|sedução
+Algemas|prendem os pulsos|metal|brincadeira ou polícia
+Chicote|estala|couro|fetiche
+Vibrador|brinquedo íntimo|pilhas|sex shop
+Camisinha|proteção|látex|prevenção
+Pílula anticoncepcional|cartela|mulher|evita gravidez
+Lubrificante|gel|escorrega|íntimo
+Preliminares|antes da hora H|carícias|aquecimento
+Orgasmo|clímax|prazer máximo|ápice
+Gemido|som de prazer|baixinho ou alto|paredes finas
+Strip-tease|tirar a roupa devagar|dança|música lenta
+Pole dance|barra|dança sensual|acrobacia
+Massagem erótica|óleo|mãos|relaxar e provocar
+Sexo|intimidade|casal|cama
+Sexo oral|prazer com a boca|íntimo|preliminar
+Posição|variações|kama sutra|criatividade
+Fetiche|desejo específico|fantasia|pés ou couro
+Fantasia sexual|desejo secreto|imaginação|confessar
+Ménage|três na cama|ousadia|trio
+Swing|casais trocam|clube|liberal
+Sexting|mensagens quentes|celular|apagar depois
+Nudes|fotos sem roupa|celular|vazou
+Ficante|sem compromisso|rolo|só de vez em quando
+Amante|relação escondida|traição|segunda casa
+Traição|infidelidade|descobriu|pulada de cerca
+Chifre|corno|traição|cabeça do touro
+Pegação|beijos na balada|festa|ficar com vários
+Ressaca|dia seguinte|dor de cabeça|bebida demais
+Bebedeira|exagero|cambaleando|brinde demais
+Porre|bêbado|cambaleando|bebida demais
+Balada|noite de dança|fila e pulseira|madrugada
+Motel|encontro reservado|suíte|garagem coberta
+Suíte|quarto com banheiro|motel|hotel
+Banheira de hidromassagem|jatos|espuma|casal
+Viagra|azulzinho|potência|farmácia
+Ereção|duro|masculino|manhã
+Seios|peito feminino|sutiã|amamentar
+Bunda|bumbum|traseiro|calça justa
+Mamilo|ponta do seio|sensível|amamentação
+Pelos|corpo|depilação|barba
+Depilação|cera|remover pelos|lâmina
+Virgindade|nunca teve relação|primeira vez|ingenuidade
+Primeira vez|iniciação|nervosismo|inesquecível
+Pílula do dia seguinte|emergência|farmácia|depois do descuido
+Cantada|conquista|frase de efeito|gancho
+Sedução|conquista|charme|olhar
+Tesão|desejo|vontade|fogo
+Safadeza|malícia|travessura|olhar de lado
+Putaria|bagunça sexual|sem pudor|sacanagem
+Boquete|sexo oral|íntimo|boca
+Punheta|masturbação masculina|mão|solitário
+Siririca|masturbação feminina|sozinha|toque
+Transar|fazer amor|relação|dormir juntos
+Gozar|chegar ao clímax|prazer|fim
+Pênis|órgão masculino|íntimo|pau
+Vagina|órgão feminino|íntimo|xoxota
+Clitóris|ponto de prazer|íntimo|feminino
+Testículos|bolas|íntimo|saco
+Pornô|filme adulto|vídeo|proibido para menores
+Site adulto|conteúdo explícito|navegação anônima|aba escondida
+Revista adulta|nus|papel|banca
+Sex shop|loja de brinquedos|discreta|embalagem preta
+Boneca inflável|brinquedo adulto|plástico|solidão
+Garota de programa|profissional do sexo|cobra por encontro|acompanhante
+Orgia|muitos juntos|festa libertina|sem limites
+Masturbação|prazer solitário|toque|sozinho
+Sexo anal|íntimo|outra via|lubrificante
+Dark room|escuro|casas noturnas|sem ver ninguém
+Boate de strip|dançarinas|palco|notas
+Lap dance|dança no colo|sensual|clube
+Sexo no chuveiro|banho a dois|água|vapor
+Sexo no carro|banco de trás|vidro embaçado|aperto
+Beijo no pescoço|arrepio|carinho|sedução
+Mordida|dentes|marca|chupão
+Chupão|marca roxa no pescoço|beijo forte|cachecol em pleno verão
+Mão boba|toque indevido|brincadeira|no ônibus ou festa
+Gostosa|elogio pesado|sensual|bonita
+Gostoso|elogio pesado|sensual|bonito
+Pelado|sem roupa|nu|banho de rio
+Nudismo|sem roupa|praia especial|liberdade
+Topless|sem a parte de cima|praia|Europa
+Maiô cavado|decote nas pernas|piscina|ousado
+Vestido decotado|abertura|sensual|festa
+Cama de casal|queen ou king|dois|colchão grande
+Sexo casual|sem compromisso|uma noite|ficante
+Quarto vermelho|iluminação sensual|sedução|ousadia
+Jogo de sedução|desafio entre casais|cartas|prendas
+Strip poker|baralho e roupa|apostas|perdeu tirou
+Verdade ou desafio|perguntas picantes|roda de amigos|prenda ousada
+Beijo triplo|três bocas|loucura|festa
+Despedida de solteiro|última noite|amigos|stripper
+Chá de lingerie|presentes sensuais|noiva|brincadeiras
+Tesão proibido|desejo escondido|segredo|aventura
+Afrodisíaco|aumenta o desejo|ostras|chocolate
+Sexo selvagem|sem freio|intenso|arranha
+Gemido alto|barulho|vizinhos|parede fina
+`});
+var SYN=[];
+SYN.push(`Vulcão|Lava|Cratera|Bicarbonato
+Cachoeira|Queda|Espuma|Tarzan
+Oceano|Mar|Profundeza|Náufrago
+Deserto|Dunas|Miragem|Sede
+Floresta|Mata|Selva|Lenhador
+Montanha|Pico|Escalada|Sherpa
+Rio|Córrego|Margem|Heráclito
+Lago|Represa|Espelho|Pedrinha
+Praia|Litoral|Maresia|Sandália
+Ilha|Arquipélago|Náufrago|Robinson
+Caverna|Gruta|Morcegos|Platão
+Geleira|Gelo|Iceberg|Aquecimento
+Arco-íris|Espectro|Chuva|Tesouro
+Trovão|Estrondo|Raio|Thor
+Relâmpago|Raio|Clarão|Franklin
+Furacão|Ciclone|Tufão|Katrina
+Terremoto|Tremor|Abalo|Falha
+Tsunami|Maremoto|Onda|Fukushima
+Neve|Floco|Inverno|Trenó
+Chuva|Garoa|Temporal|Noé
+Vento|Brisa|Ventania|Moinho
+Nuvem|Cúmulo|Algodão|Armazenamento
+Neblina|Névoa|Bruma|Londres
+Sol|Astro|Luz|Ícaro
+Lua|Satélite|Noite|Armstrong
+Estrela|Astro|Brilho|Desejo
+Cometa|Bólido|Cauda|Halley
+Planeta|Orbe|Órbita|Plutão
+Galáxia|Via-Láctea|Espiral|Andrômeda
+Eclipse|Ocultação|Sombra|Alinhamento
+Aurora boreal|Luzes|Polar|Noruega
+Pântano|Charco|Brejo|Lodo
+Savana|Planície|Capim|Safári
+Tundra|Gelo|Ártico|Permafrost
+Recife|Banco|Coral|Naufrágio
+Coral|Pólipo|Mar|Branqueamento
+Pedra|Rocha|Seixo|Atirar
+Areia|Grãos|Praia|Ampulheta
+Lama|Barro|Atoleiro|Porcos
+Cânion|Desfiladeiro|Fenda|Erosão
+Planície|Campo|Plano|Horizonte
+Vale|Baixada|Depressão|Silício
+Colina|Morro|Outeiro|Declive
+Penhasco|Precipício|Despenhadeiro|Abismo
+Dunas|Montes|Areal|Lawrence
+Gruta|Caverna|Furna|Estalagmite
+Mangue|Estuário|Lodo|Caranguejo
+Cerrado|Savana|Pequi|Planalto
+Pantanal|Várzea|Jacaré|Cuiabá
+Caatinga|Sertão|Semiárido|Mandacaru
+Árvore|Planta|Copa|Anéis
+Folha|Fronde|Clorofila|Outono
+Flor|Botão|Pétala|Buquê
+Rosa|Flor|Espinho|Romance
+Girassol|Heliotrópio|Amarelo|Van-Gogh
+Cacto|Suculenta|Espinho|Tequila
+Samambaia|Feto|Pteridófita|Avó
+Bambu|Cana|Taquara|Panda
+Palmeira|Palma|Coqueiro|Tâmara
+Orquídea|Flor|Epífita|Baunilha
+Grama|Relva|Campo|Cortador
+Semente|Grão|Caroço|Germinação
+Raiz|Radícula|Origem|Genealogia
+Tronco|Caule|Madeira|Lenhador
+Galho|Ramo|Ramagem|Estilingue
+Musgo|Líquen|Verde|Norte
+Cogumelo|Fungo|Champignon|Trufa
+Lenha|Madeira|Combustível|Lareira
+Fogueira|Fogo|Brasa|Marshmallow
+Brisa|Aragem|Sopro|Veleiro
+Orvalho|Sereno|Umidade|Madrugada
+Geada|Gelo|Congelamento|Vidraça
+Granizo|Pedra|Saraiva|Estragos
+Tornado|Ciclone|Redemoinho|Kansas
+Enchente|Inundação|Cheia|Arca
+Seca|Estiagem|Aridez|Rachaduras
+Maré|Vazante|Lunar|Pescador
+Onda|Marola|Vaga|Prancha
+Poço|Cisterna|Cacimba|Desejo
+Nascente|Fonte|Olho-d'água|Início
+Lagoa|Laguna|Alagado|Pedalinho
+Oásis|Refúgio|Palmeiras|Beduíno
+Fóssil|Vestígio|Pré-história|Âmbar
+Diamante|Gema|Brilhante|Carbono
+Ouro|Metal|Riqueza|Pirata
+Prata|Metal|Argênteo|Talher
+Cristal|Quartzo|Vidro|Taça
+Carvão|Brasa|Antracito|Churrasco
+Petróleo|Barril|Combustível|Pré-sal
+Pólen|Flores|Néctar|Espirro
+Colmeia|Favo|Apiário|Zumbido
+Poeira|Pó|Sujeira|Espanador
+Trilha|Caminho|Senda|Mochila
+Península|Cabo|Istmo|Crimeia
+Estalactite|Pingente|Calcário|Gotejar
+Atmosfera|Ar|Camada|Ozônio
+Pôr do sol|Ocaso|Crepúsculo|Despedida
+Amanhecer|Alvorada|Aurora|Despertar
+Lua cheia|Plenilúnio|Brilho|Uivo
+Tempestade|Temporal|Borrasca|Shakespeare
+Cordilheira|Serra|Andes|Muralha
+`);
+SYN.push(`Cachorro|Cão|Canino|Carteiro
+Gato|Felino|Bichano|Egito
+Cavalo|Equino|Corcel|Xadrez
+Vaca|Bovino|Gado|Sagrada
+Porco|Suíno|Leitão|Cofrinho
+Galinha|Ave|Frango|Quintal
+Pato|Marreco|Lagoa|Borracha
+Ovelha|Carneiro|Lã|Insônia
+Cabra|Caprino|Bode|Penhasco
+Coelho|Lebre|Orelhudo|Cartola
+Rato|Roedor|Camundongo|Labirinto
+Hamster|Roedor|Gaiola|Roda
+Tartaruga|Cágado|Casco|Longevidade
+Cobra|Serpente|Víbora|Medusa
+Jacaré|Réptil|Caimão|Couro
+Crocodilo|Réptil|Nilo|Choro
+Lagarto|Lagartixa|Réptil|Rabo
+Camaleão|Réptil|Disfarce|Político
+Sapo|Anfíbio|Rã|Príncipe
+Perereca|Anfíbio|Rã|Janela
+Peixe|Pescado|Cardume|Memória
+Tubarão|Cação|Nadadeira|Spielberg
+Baleia|Cetáceo|Gigante|Ahab
+Golfinho|Cetáceo|Delfim|Sonar
+Polvo|Molusco|Tentáculos|Oráculo
+Lula|Molusco|Cefalópode|Kraken
+Caranguejo|Crustáceo|Siri|Câncer
+Camarão|Crustáceo|Pitu|Coquetel
+Estrela-do-mar|Equinoderma|Asteroide|Praia
+Água-viva|Medusa|Cnidário|Transparente
+Foca|Pinípede|Mamífero|Aplauso
+Pinguim|Ave|Antártida|Smoking
+Urso polar|Ártico|Branco|Aquecimento
+Urso|Plantígrado|Pardo|Hibernação
+Panda|Urso|Bambu|Diplomacia
+Lobo|Canídeo|Alcateia|Capuz
+Raposa|Canídeo|Astuta|Fábula
+Leão|Felino|Rei|Zodíaco
+Tigre|Felino|Listras|Bengala
+Onça|Felino|Pintada|Mancha
+Leopardo|Pantera|Felino|Estampa
+Guepardo|Felino|Veloz|Corrida
+Elefante|Paquiderme|Tromba|Memória
+Girafa|Pescoçuda|Alta|Savana
+Zebra|Equídeo|Listrada|Faixa
+Hipopótamo|Paquiderme|Rio|Bocão
+Rinoceronte|Paquiderme|Chifre|Cobiça
+Macaco|Primata|Símio|Darwin
+Gorila|Primata|Símio|Montanha
+Chimpanzé|Primata|Símio|Jane
+Orangotango|Primata|Ruivo|Bornéu
+Preguiça|Bicho|Lerdo|Pecado
+Tamanduá|Mamífero|Formigueiro|Focinho
+Tatu|Mamífero|Armadura|Bola
+Capivara|Roedor|Gigante|Rio
+Quati|Mamífero|Focinho|Bando
+Lontra|Mamífero|Aquática|Mãos
+Castor|Roedor|Represa|Engenheiro
+Canguru|Marsupial|Bolsa|Austrália
+Coala|Marsupial|Eucalipto|Sono
+Ornitorrinco|Monotremado|Bico|Paradoxo
+Camelo|Dromedário|Corcunda|Agulha
+Lhama|Camelídeo|Alpaca|Andes
+Alce|Cervídeo|Galhada|Canadá
+Rena|Cervídeo|Trenó|Natal
+Veado|Cervídeo|Cervo|Chifres
+Búfalo|Bovino|Manada|Mozarela
+Morcego|Quiróptero|Voador|Drácula
+Esquilo|Roedor|Noz|Estoque
+Ouriço|Mamífero|Espinhos|Bola
+Gambá|Mamífero|Fedor|Fingir
+Papagaio|Ave|Louro|Pirata
+Arara|Ave|Colorida|Selva
+Tucano|Ave|Bico|Cereal
+Beija-flor|Ave|Colibri|Néctar
+Coruja|Ave|Noturna|Sabedoria
+Águia|Ave|Rapina|Símbolo
+Falcão|Ave|Rapina|Caça
+Urubu|Ave|Carniceiro|Limpeza
+Pombo|Ave|Praça|Correio
+Pardal|Ave|Pássaro|Cidade
+Corvo|Ave|Negro|Poe
+Cisne|Ave|Lago|Balé
+Flamingo|Ave|Rosa|Equilíbrio
+Avestruz|Pernuda|Corredora|Enterrar
+Pavão|Ave|Leque|Vaidade
+Peru|Ave|Ceia|Gobble
+Abelha|Inseto|Mel|Colmeia
+Vespa|Inseto|Marimbondo|Ferrão
+Formiga|Inseto|Formigueiro|Operária
+Borboleta|Inseto|Lagarta|Efeito
+Mariposa|Inseto|Noturna|Lâmpada
+Joaninha|Inseto|Vermelha|Sorte
+Mosquito|Inseto|Pernilongo|Dengue
+Mosca|Inseto|Varejeira|Zumbido
+Barata|Inseto|Praga|Resistência
+Aranha|Aracnídeo|Teia|Tecelã
+Escorpião|Aracnídeo|Ferrão|Signo
+Grilo|Inseto|Cricri|Consciência
+Cigarra|Inseto|Canto|Verão
+Minhoca|Anelídeo|Terra|Isca
+Caracol|Molusco|Concha|Lerdo
+Lesma|Molusco|Baba|Sal
+Piranha|Peixe|Dentes|Atrevida
+Cavalo-marinho|Peixe|Hipocampo|Gravidez
+Raia|Manta|Ferrão|Achatada
+Enguia|Peixe|Elétrica|Choque
+Salmão|Peixe|Rosado|Piracema
+Atum|Peixe|Lata|Sushi
+Sardinha|Peixe|Cardume|Lata
+Hiena|Carniceira|Risada|Savana
+Boto|Golfinho|Rosa|Lenda
+Sagui|Primata|Pequeno|Mico
+Jegue|Asno|Burro|Sertão
+Dinossauro|Réptil|Extinto|Meteoro
+`);
+SYN.push(`Pizza|Italiana|Fatia|Nápoles
+Hambúrguer|Lanche|Sanduíche|Combo
+Cachorro-quente|Lanche|Salsicha|Estádio
+Pastel|Salgado|Fritura|Feira
+Coxinha|Salgado|Frango|Festinha
+Brigadeiro|Docinho|Chocolate|Aniversário
+Beijinho|Docinho|Coco|Cravo
+Pão de queijo|Salgadinho|Polvilho|Minas
+Feijoada|Prato|Feijão|Sábado
+Arroz|Grão|Cereal|Casamento
+Feijão|Leguminosa|Grão|Algodão
+Farofa|Farinha|Acompanhamento|Convencido
+Macarrão|Massa|Espaguete|Marco-Polo
+Lasanha|Massa|Camadas|Segunda
+Strogonoff|Prato|Creme|Rússia
+Churrasco|Assado|Brasa|Domingo
+Picanha|Carne|Corte|Gordura
+Linguiça|Embutido|Salsicha|Tripa
+Bacon|Toucinho|Porco|Crocante
+Presunto|Frios|Fatia|Perna
+Queijo|Laticínio|Mussarela|Rato
+Manteiga|Gordura|Laticínio|Pão
+Leite|Bebida|Laticínio|Gato
+Iogurte|Laticínio|Fermentado|Probiótico
+Ovo|Alimento|Casca|Dilema
+Omelete|Prato|Ovos|Dobrada
+Panqueca|Massa|Crepe|Calda
+Waffle|Massa|Quadrados|Belga
+Pão|Alimento|Padaria|Fermento
+Bolo|Doce|Aniversário|Forno
+Torta|Doce|Massa|Palhaço
+Pudim|Sobremesa|Flan|Caramelo
+Sorvete|Gelado|Sobremesa|Verão
+Picolé|Gelado|Palito|Sorveteiro
+Chocolate|Doce|Cacau|Páscoa
+Bombom|Doce|Chocolate|Caixa
+Paçoca|Doce|Amendoim|Rolha
+Pipoca|Milho|Estouro|Cinema
+Batata frita|Fritura|Palitos|Fast-food
+Salgadinho|Petisco|Pacote|Dedos
+Sanduíche|Lanche|Recheio|Conde
+Sushi|Japonês|Peixe|Hashi
+Temaki|Japonês|Cone|Alga
+Yakisoba|Macarrão|Oriental|Legumes
+Tapioca|Goma|Crepe|Mandioca
+Açaí|Fruta|Roxo|Pará
+Cuscuz|Milho|Nordeste|Marrocos
+Acarajé|Bolinho|Baiano|Dendê
+Moqueca|Ensopado|Peixe|Capixaba
+Vatapá|Creme|Baiano|Camarão
+Baião de dois|Prato|Nordeste|Gonzaga
+Pamonha|Milho|Folha|Junino
+Canjica|Milho|Doce|Fogueira
+Quindim|Doce|Gema|Coco
+Cocada|Doce|Coco|Praia
+Maçã|Fruta|Vermelha|Newton
+Banana|Fruta|Amarela|Macaco
+Laranja|Fruta|Cítrica|Gomos
+Limão|Fruta|Azedo|Cítrico
+Morango|Fruta|Vermelho|Sementes
+Uva|Fruta|Cacho|Vinho
+Melancia|Fruta|Verde|Caroço
+Abacaxi|Fruta|Coroa|Problema
+Manga|Fruta|Tropical|Fio
+Mamão|Fruta|Papaia|Sementes
+Abacate|Fruta|Guacamole|Cremoso
+Coco|Fruta|Água|Ralar
+Pêssego|Fruta|Macio|Calda
+Pera|Fruta|Verde|Vizinha
+Cereja|Fruta|Vermelha|Topo
+Kiwi|Fruta|Verde|Pássaro
+Goiaba|Fruta|Rosada|Doce
+Maracujá|Fruta|Azedo|Calmante
+Jabuticaba|Fruta|Roxa|Tronco
+Caju|Fruta|Castanha|Nordeste
+Cenoura|Legume|Laranja|Coelho
+Tomate|Fruta|Vermelho|Molho
+Alface|Verdura|Folha|Salada
+Cebola|Bulbo|Lágrima|Camadas
+Alho|Bulbo|Tempero|Vampiro
+Batata|Tubérculo|Purê|Inca
+Mandioca|Aipim|Macaxeira|Raiz
+Milho|Cereal|Espiga|Maia
+Brócolis|Verdura|Crucífera|Criança
+Abóbora|Legume|Laranja|Carruagem
+Pepino|Legume|Verde|Conserva
+Pimentão|Legume|Colorido|Recheado
+Beterraba|Raiz|Roxa|Borscht
+Berinjela|Legume|Roxa|Parmegiana
+Couve|Verdura|Folha|Feijoada
+Espinafre|Verdura|Ferro|Marinheiro
+Água|Líquido|H2O|Vida
+Suco|Bebida|Fruta|Polpa
+Refrigerante|Bebida|Gás|Bolhas
+Café|Bebida|Cafeína|Manhã
+Chá|Infusão|Erva|Inglaterra
+Cerveja|Bebida|Espuma|Lúpulo
+Vinho|Bebida|Uva|Adega
+Caipirinha|Drinque|Limão|Turista
+Champanhe|Espumante|Rolha|Virada
+Whisky|Destilado|Escocês|Pedra
+Vodka|Destilado|Russa|Martini
+Cachaça|Aguardente|Pinga|Alambique
+Milkshake|Bebida|Sorvete|Canudo
+Vitamina|Bebida|Liquidificador|Fruta
+Água de coco|Bebida|Natural|Praia
+Guaraná|Refrigerante|Semente|Amazônia
+Mel|Néctar|Doce|Abelha
+Açúcar|Adoçante|Doce|Cubo
+Pimenta|Tempero|Ardência|Lágrimas
+Ketchup|Molho|Tomate|Sachê
+Maionese|Molho|Ovo|Cremosa
+Mostarda|Molho|Amarela|Picante
+Azeite|Óleo|Oliva|Mediterrâneo
+Vinagre|Ácido|Tempero|Conserva
+Farinha|Pó|Trigo|Massa
+Granola|Cereal|Aveia|Crocante
+Cereal|Grão|Manhã|Caixa
+Bolacha|Biscoito|Lanche|Recheio
+Biscoito|Bolacha|Crocante|Farelo
+Sopa|Caldo|Colher|Inverno
+Salada|Folhas|Verde|Dieta
+Risoto|Arroz|Italiano|Cremoso
+Nhoque|Massa|Batata|Dia-29
+Empada|Salgado|Massa|Palmito
+Esfiha|Salgado|Árabe|Aberta
+Kibe|Bolinho|Árabe|Trigo
+Croissant|Folhado|Francês|Lua
+Donut|Rosquinha|Furo|Glacê
+Cupcake|Bolinho|Forminha|Confeitaria
+Pirulito|Doce|Palito|Chupar
+Chiclete|Goma|Mascar|Bola
+Algodão-doce|Guloseima|Açúcar|Parque
+Fondue|Queijo|Panela|Suíça
+Taco|Tortilla|Mexicano|Recheio
+Burrito|Tortilla|Mexicano|Enrolado
+Rabanada|Doce|Pão|Natal
+Panetone|Pão|Natal|Passas
+Peixe frito|Fritura|Isca|Praia
+Camarão empanado|Fritura|Petisco|Crocante
+Strudel|Folhado|Maçã|Áustria
+Churros|Doce|Frito|Canela
+Mortadela|Embutido|Frios|Bolonha
+`);
+SYN.push(`Cadeira|Assento|Banco|Dança
+Mesa|Móvel|Tampo|Cavaleiros
+Sofá|Estofado|Divã|Televisão
+Cama|Leito|Colchão|Sonho
+Travesseiro|Almofada|Cabeceira|Fronha
+Cobertor|Manta|Coberta|Linus
+Colchão|Estrado|Molas|Camas
+Armário|Guarda-roupa|Móvel|Narnia
+Geladeira|Refrigerador|Frigorífico|Ímã
+Fogão|Cozinha|Chama|Boca
+Micro-ondas|Forno|Aquecedor|Radiação
+Liquidificador|Mixer|Bater|Jarra
+Batedeira|Misturador|Bolo|Clara
+Torradeira|Pão|Resistência|Salto
+Panela|Caçarola|Tampa|Pressão
+Frigideira|Tacho|Cabo|Ovo
+Faca|Lâmina|Corte|Churrasco
+Garfo|Talher|Dentes|Macarrão
+Colher|Talher|Concha|Sopa
+Prato|Louça|Pires|Mesa
+Copo|Taça|Caneca|Brinde
+Xícara|Caneca|Pires|Café
+Garrafa|Frasco|Vidro|Mensagem
+Jarra|Jarro|Suco|Alça
+Tábua de corte|Tabuleiro|Madeira|Cozinha
+Ralador|Cozinha|Queijo|Lâmina
+Escorredor|Coador|Furos|Macarrão
+Abridor de latas|Utensílio|Conserva|Alavanca
+Chaleira|Bule|Fervura|Chá
+Cafeteira|Máquina|Café|Filtro
+Espelho|Reflexo|Vidro|Rainha
+Escova de dentes|Higiene|Cerdas|Boca
+Pasta de dente|Dentifrício|Tubo|Menta
+Sabonete|Barra|Espuma|Banho
+Shampoo|Xampu|Cabelo|Frasco
+Toalha|Pano|Banho|Felpuda
+Chuveiro|Ducha|Banho|Água
+Vaso sanitário|Privada|Banheiro|Descarga
+Pia|Lavatório|Torneira|Cuba
+Banheira|Banho|Imersão|Patinho
+Ralo|Escoamento|Cano|Cabelo
+Vassoura|Varrer|Cerdas|Bruxa
+Rodo|Limpeza|Borracha|Chão
+Balde|Vasilha|Alça|Areia
+Esponja|Limpeza|Louça|Mar
+Aspirador|Sugar|Pó|Barulho
+Ferro de passar|Alisar|Vapor|Camisa
+Máquina de lavar|Lavadora|Roupa|Tambor
+Varal|Corda|Roupa|Sol
+Cabide|Gancho|Roupa|Armário
+Guarda-roupa|Armário|Roupas|Portas
+Cortina|Tecido|Janela|Palco
+Tapete|Carpete|Chão|Persa
+Almofada|Coxim|Sofá|Macia
+Abajur|Luminária|Luz|Cabeceira
+Lâmpada|Bulbo|Luz|Edison
+Ventilador|Hélice|Vento|Verão
+Ar-condicionado|Climatizador|Gelo|Split
+Relógio|Horas|Ponteiros|Tempo
+Despertador|Alarme|Soneca|Manhã
+Calendário|Datas|Dias|Parede
+Quadro|Pintura|Moldura|Parede
+Vaso|Jarro|Planta|Flores
+Chave|Abridor|Fechadura|Segredo
+Cadeado|Tranca|Segredo|Corrente
+Porta|Entrada|Maçaneta|Batente
+Janela|Abertura|Vidro|Vista
+Escada|Degraus|Subir|Corrimão
+Telhado|Cobertura|Telhas|Gato
+Chaminé|Duto|Fumaça|Natal
+Campainha|Sino|Toque|Portão
+Capacete|Proteção|Cabeça|Moto
+Capacho|Tapete|Entrada|Boas-vindas
+Lixeira|Lata|Descarte|Tampa
+Caixa de correio|Correspondência|Cartas|Portão
+Guarda-chuva|Sombrinha|Haste|Esquecimento
+Mochila|Bolsa|Costas|Aula
+Bolsa|Sacola|Alça|Bagagem
+Carteira|Porta-moedas|Documentos|Bolso
+Óculos|Lentes|Visão|Armação
+Caneta|Esferográfica|Tinta|Escrever
+Lápis|Grafite|Desenho|Ponta
+Borracha|Apagador|Erro|Escola
+Caderno|Bloco|Folhas|Anotações
+Livro|Obra|Páginas|Leitura
+Régua|Medida|Centímetro|Reta
+Tesoura|Cortar|Lâminas|Papel
+Cola|Adesivo|Gruda|Recortes
+Grampeador|Escritório|Grampo|Papel
+Clipe|Escritório|Prender|Metal
+Fita adesiva|Durex|Rolo|Embalagem
+Martelo|Ferramenta|Prego|Bater
+Prego|Ferramenta|Metal|Pendurar
+Parafuso|Rosca|Fixação|Chave
+Chave de fenda|Ferramenta|Parafuso|Girar
+Serra|Ferramenta|Dentes|Madeira
+Furadeira|Ferramenta|Broca|Barulho
+Alicate|Ferramenta|Pinça|Aperto
+Lanterna|Luz|Pilhas|Escuro
+Pilha|Bateria|Energia|Controle
+Vela|Cera|Chama|Pavio
+Isqueiro|Chama|Fogo|Cigarro
+Fósforo|Palito|Riscar|Chama
+Bússola|Norte|Agulha|Direção
+Mapa|Carta|Rota|Tesouro
+Binóculo|Lentes|Observar|Longe
+Lupa|Lente|Aumentar|Detetive
+Moeda|Dinheiro|Centavo|Sorte
+Dinheiro|Grana|Nota|Árvore
+Cartão de crédito|Plástico|Fatura|Compras
+Cofrinho|Poupança|Moedas|Porquinho
+Balão|Bexiga|Ar|Festa
+Bola|Esfera|Jogo|Chute
+Boneca|Brinquedo|Menina|Casinha
+Quebra-cabeça|Puzzle|Peças|Montar
+Controle remoto|Comando|Botões|TV
+Travesseiro de pescoço|Almofada|Viagem|Apoio
+Mala|Bagagem|Viagem|Rodinhas
+Pente|Alisador|Dentes|Cabelo
+Escova de cabelo|Alisadora|Cerdas|Fios
+Secador|Aquecedor|Cabelo|Salão
+Tomada|Plugue|Energia|Parede
+Extensão|Régua|Fio|Filtro
+Cesto de roupa|Balaio|Banheiro|Lavanderia
+Saco de lixo|Embalagem|Descarte|Preto
+Pregador|Prendedor|Mola|Varal
+Sacola|Bolsa|Compras|Plástico
+Estante|Prateleira|Livros|Biblioteca
+`);
+SYN.push(`Escola|Colégio|Aula|Recreio
+Universidade|Faculdade|Campus|Formatura
+Biblioteca|Acervo|Livros|Silêncio
+Hospital|Clínica|Enfermaria|Plantão
+Farmácia|Drogaria|Remédios|Balcão
+Padaria|Panificadora|Pão|Madrugada
+Supermercado|Hipermercado|Carrinho|Corredor
+Shopping|Galeria|Lojas|Vitrine
+Mercado|Armazém|Feira|Pregão
+Feira|Barraca|Frutas|Pastel
+Açougue|Carnes|Balcão|Gancho
+Restaurante|Cardápio|Garçom|Reserva
+Lanchonete|Lanches|Balcão|Chapa
+Bar|Botequim|Cerveja|Petisco
+Boate|Balada|Pista|Fila
+Cinema|Filmes|Sala|Pipoca
+Teatro|Peças|Palco|Cortina
+Museu|Exposição|Acervo|Silêncio
+Zoológico|Bichos|Jaulas|Passeio
+Parque|Jardim|Bosque|Piquenique
+Praça|Largo|Banco|Pombos
+Estádio|Arena|Torcida|Domingo
+Ginásio|Quadra|Esporte|Apito
+Academia|Musculação|Halteres|Espelho
+Piscina|Tanque|Nado|Cloro
+Clube|Associação|Sócio|Carteirinha
+Igreja|Templo|Missa|Sino
+Templo|Santuário|Reza|Incenso
+Cemitério|Necrópole|Túmulos|Finados
+Prefeitura|Governo|Cidade|Burocracia
+Delegacia|Polícia|Boletim|Cela
+Banco|Agência|Cofre|Senha
+Correios|Cartas|Selo|Encomenda
+Aeroporto|Pista|Voos|Embarque
+Rodoviária|Terminal|Ônibus|Plataforma
+Estação de metrô|Embarque|Plataforma|Catraca
+Porto|Cais|Navios|Contêiner
+Posto de gasolina|Abastecimento|Bomba|Combustível
+Oficina|Mecânica|Graxa|Conserto
+Hotel|Hospedagem|Recepção|Quarto
+Pousada|Hospedagem|Rede|Praia
+Camping|Acampamento|Barraca|Lona
+Fazenda|Sítio|Curral|Porteira
+Sítio|Chácara|Roça|Fim-de-semana
+Castelo|Fortaleza|Torre|Rei
+Palácio|Mansão|Realeza|Guarda
+Prisão|Cadeia|Cela|Grades
+Fábrica|Indústria|Esteira|Sirene
+Escritório|Trabalho|Mesa|Reunião
+Laboratório|Pesquisa|Jaleco|Experimento
+Cozinha|Fogão|Receita|Panelas
+Sala de estar|Living|Sofá|Visitas
+Quarto|Dormitório|Cama|Segredo
+Banheiro|Toalete|Chuveiro|Trinco
+Garagem|Abrigo|Carro|Portão
+Quintal|Pátio|Terreiro|Varal
+Varanda|Sacada|Terraço|Rede
+Sótão|Águas-furtadas|Poeira|Baú
+Porão|Subsolo|Escuro|Vinho
+Elevador|Ascensor|Botão|Andar
+Corredor|Passagem|Comprido|Portas
+Torre|Campanário|Altura|Sino
+Ponte|Viaduto|Travessia|Cadeado
+Túnel|Passagem|Escuro|Montanha
+Rua|Via|Asfalto|Calçada
+Avenida|Via|Larga|Trânsito
+Estrada|Rodovia|Pista|Pedágio
+Esquina|Cruzamento|Canto|Placa
+Paris|França|Luz|Baguete
+Rio de Janeiro|Carioca|Maravilhosa|Bondinho
+São Paulo|Paulistana|Metrópole|Garoa
+Nova York|Manhattan|Metrópole|Táxi
+Londres|Inglaterra|Capital|Neblina
+Tóquio|Japão|Capital|Neon
+Roma|Itália|Capital|Império
+Egito|Faraós|Pirâmides|Cleópatra
+Japão|Nipônico|Oriental|Samurai
+Itália|Bota|Europa|Massa
+Portugal|Lusitânia|Europa|Fado
+Argentina|Platino|Vizinho|Tango
+Estados Unidos|América|Potência|Hollywood
+China|Oriental|Gigante|Dragão
+Índia|Hindu|Subcontinente|Curry
+Antártida|Polo|Gelo|Pinguim
+Cristo Redentor|Monumento|Corcovado|Braços
+Torre Eiffel|Monumento|Paris|Ferro
+Pirâmides|Monumentos|Egito|Faraó
+Muralha da China|Fortificação|Chinesa|Dinastia
+Coliseu|Anfiteatro|Roma|Gladiador
+Machu Picchu|Ruínas|Incas|Cusco
+Las Vegas|Cassino|Nevada|Neon
+Hollywood|Cinema|Estrelas|Letreiro
+Salvador|Bahia|Capital|Pelourinho
+Veneza|Canais|Gôndola|Máscaras
+Hawaí|Ilhas|Havaiano|Aloha
+Marte|Vermelho|Planeta|Alienígenas
+Praça de alimentação|Refeitório|Bandeja|Mesas
+Sala de aula|Classe|Carteiras|Giz
+Estacionamento|Vagas|Carros|Cancela
+Parque aquático|Toboágua|Piscinas|Boia
+Aquário|Peixes|Vidro|Tanque
+Planetário|Cúpula|Astros|Projeção
+Salão de beleza|Cabeleireiro|Espelho|Tintura
+Barbearia|Navalha|Barba|Cadeira
+Lavanderia|Lavagem|Roupas|Meias
+Cartório|Registro|Carimbo|Firma
+`);
+SYN.push(`Médico|Doutor|Clínico|Jaleco
+Enfermeiro|Auxiliar|Plantão|Agulha
+Dentista|Odontólogo|Broca|Boca
+Veterinário|Zootecnista|Bichos|Vacina
+Professor|Mestre|Docente|Giz
+Advogado|Jurista|Causídico|Toga
+Juiz|Magistrado|Sentença|Martelo
+Policial|Agente|Patrulha|Sirene
+Bombeiro|Socorrista|Mangueira|Resgate
+Soldado|Militar|Fardado|Continência
+Piloto|Aviador|Comandante|Cabine
+Comissário de bordo|Aeromoço|Voo|Instruções
+Motorista|Condutor|Volante|Trânsito
+Caminhoneiro|Estradeiro|Carga|Rádio
+Taxista|Condutor|Corrida|Bandeira
+Entregador|Motoboy|Pedido|Mochila
+Carteiro|Correio|Cartas|Cachorro
+Padeiro|Confeiteiro|Forno|Madrugada
+Açougueiro|Talhador|Cortes|Avental
+Cozinheiro|Chef|Cozinha|Chapéu
+Garçom|Atendente|Bandeja|Gorjeta
+Barista|Cafeteiro|Espresso|Espuma
+Bartender|Barman|Coqueteleira|Drinque
+Cabeleireiro|Barbeiro|Tesoura|Salão
+Manicure|Pedicure|Esmalte|Unhas
+Maquiador|Visagista|Pincel|Pó
+Costureiro|Modista|Agulha|Linha
+Alfaiate|Costureiro|Medidas|Terno
+Sapateiro|Calçadista|Sola|Cola
+Pedreiro|Construtor|Tijolo|Cimento
+Carpinteiro|Marceneiro|Madeira|Serragem
+Eletricista|Técnico|Fios|Choque
+Encanador|Bombeiro-hidráulico|Cano|Vazamento
+Pintor|Artista|Tinta|Rolo
+Mecânico|Técnico|Graxa|Oficina
+Engenheiro|Projetista|Cálculo|Ponte
+Arquiteto|Projetista|Planta|Maquete
+Programador|Desenvolvedor|Código|Bug
+Designer|Criador|Layout|Fonte
+Fotógrafo|Retratista|Lente|Flash
+Jornalista|Repórter|Notícia|Manchete
+Escritor|Autor|Livros|Pseudônimo
+Cantor|Vocalista|Voz|Microfone
+Músico|Instrumentista|Partitura|Ensaio
+Ator|Intérprete|Elenco|Palco
+Diretor|Cineasta|Roteiro|Claquete
+Dançarino|Bailarino|Coreografia|Palco
+Palhaço|Humorista|Circo|Nariz
+Mágico|Ilusionista|Truque|Cartola
+Atleta|Esportista|Treino|Pódio
+Árbitro|Juiz|Apito|Cartão
+Treinador|Técnico|Prancheta|Tática
+Personal trainer|Instrutor|Treino|Série
+Nutricionista|Dietista|Cardápio|Balança
+Psicólogo|Terapeuta|Divã|Consultório
+Fisioterapeuta|Reabilitador|Maca|Alongamento
+Farmacêutico|Boticário|Remédio|Bula
+Cientista|Pesquisador|Laboratório|Eureka
+Astronauta|Cosmonauta|Órbita|Gravidade
+Detetive|Investigador|Pistas|Lupa
+Espião|Agente|Disfarce|Código
+Segurança|Vigilante|Ronda|Portaria
+Faxineiro|Limpador|Vassoura|Balde
+Jardineiro|Paisagista|Poda|Terra
+Agricultor|Lavrador|Plantio|Colheita
+Pescador|Marujo|Rede|Isca
+Marinheiro|Marujo|Navio|Âncora
+Bibliotecário|Arquivista|Estante|Silêncio
+Contador|Auditor|Balanço|Impostos
+Banqueiro|Financista|Crédito|Cofre
+Vendedor|Comerciante|Loja|Comissão
+Político|Parlamentar|Eleição|Palanque
+Prefeito|Governante|Cidade|Gabinete
+Presidente|Chefe|Nação|Faixa
+Rei|Monarca|Soberano|Coroa
+Padre|Sacerdote|Missa|Batina
+Youtuber|Criador|Vídeos|Inscritos
+Influenciador|Blogueiro|Seguidores|Publi
+Streamer|Gamer|Transmissão|Chat
+Dublador|Locutor|Voz|Estúdio
+Zelador|Caseiro|Condomínio|Chaves
+Porteiro|Guardião|Portaria|Interfone
+Salva-vidas|Guarda-vidas|Praia|Boia
+Guia turístico|Cicerone|Excursão|Roteiro
+Tatuador|Artista|Agulha|Tinta
+Pizzaiolo|Cozinheiro|Massa|Forno
+Produtor|Organizador|Bastidores|Evento
+Mestre de obras|Capataz|Canteiro|Prumo
+Doula|Parteira|Apoio|Gestante
+Leiloeiro|Vendedor|Lance|Martelo
+`);
+SYN.push(`Futebol|Bola|Gol|Mundial
+Basquete|Cesta|Quadra|Enterrada
+Vôlei|Rede|Saque|Cortada
+Tênis|Raquete|Saibro|Wimbledon
+Natação|Nado|Piscina|Raia
+Atletismo|Corrida|Pista|Salto
+Judô|Quimono|Tatame|Faixa
+Karatê|Golpe|Dojo|Okinawa
+Boxe|Ringue|Luvas|Nocaute
+Jiu-jitsu|Luta|Tatame|Gracie
+Capoeira|Ginga|Roda|Berimbau
+Ginástica|Acrobacia|Trave|Solo
+Surfe|Onda|Prancha|Tubo
+Skate|Manobra|Rodinhas|Rampa
+Patinação|Patins|Gelo|Giros
+Ciclismo|Pedal|Bicicleta|Etapa
+Corrida|Sprint|Pista|Largada
+Maratona|Resistência|Quilômetros|Fôlego
+Golfe|Taco|Buraco|Green
+Beisebol|Taco|Luva|Diamante
+Rúgbi|Bola-oval|Scrum|Haka
+Handebol|Arremesso|Gol|Quadra
+Hóquei|Disco|Gelo|Bastão
+Esqui|Neve|Pista|Bastões
+Snowboard|Prancha|Neve|Manobras
+Escalada|Corda|Parede|Presa
+Pesca|Vara|Isca|Paciência
+Caminhada|Passeio|Passos|Trilha
+Yoga|Postura|Meditação|Namastê
+Pilates|Alongamento|Aparelho|Joseph
+Xadrez|Tabuleiro|Rei|Xeque
+Damas|Passatempo|Peças|Diagonal
+Dominó|Peças|Pontos|Buchudo
+Baralho|Cartas|Naipe|Coringa
+Truco|Cartas|Grito|Zap
+Poker|Blefe|Fichas|Aposta
+Bingo|Cartela|Números|Sorteio
+Dados|Cubos|Sorte|Rolar
+Pipa|Papagaio|Linha|Vento
+Pega-pega|Corrida|Pique|Infância
+Esconde-esconde|Contagem|Achar|Cantinho
+Amarelinha|Giz|Pulo|Céu
+Bambolê|Argola|Giro|Cintura
+Pula-corda|Salto|Rima|Cantiga
+Gangorra|Balanço|Parque|Peso
+Escorregador|Descida|Parque|Degraus
+Balanço|Vaivém|Parque|Corrente
+Carrossel|Giro|Cavalinhos|Parque
+Montanha-russa|Trilho|Grito|Adrenalina
+Roda-gigante|Altura|Giro|Vista
+Parque de diversões|Brinquedos|Algodão-doce|Ingresso
+Circo|Lona|Palhaço|Trapézio
+Gol|Rede|Trave|Grito
+Pênalti|Cobrança|Marca|Goleiro
+Escanteio|Canto|Cobrança|Bandeirinha
+Cartão vermelho|Expulsão|Juiz|Falta
+Apito|Sopro|Juiz|Início
+Troféu|Taça|Prêmio|Pódio
+Campeonato|Torneio|Tabela|Rodada
+Copa do Mundo|Mundial|Seleções|Quadriênio
+Olimpíadas|Jogos|Tocha|Anéis
+Torcida|Fãs|Arquibancada|Cântico
+Chuteira|Calçado|Travas|Campo
+Raquete|Cordas|Bola|Cabo
+Cesta|Aro|Rede|Tabela
+Prancha|Surfe|Quilha|Cera
+Remo|Barco|Pá|Braços
+Canoa|Barco|Remo|Rio
+Mergulho|Cilindro|Fundo|Snorkel
+Paraquedismo|Salto|Queda|Cordinha
+Bungee jump|Salto|Elástico|Ponte
+Acampamento|Barraca|Fogueira|Escoteiro
+Piquenique|Cesta|Toalha|Parque
+Karaokê|Canto|Letra|Microfone
+Videogame|Jogo|Controle|Fases
+Festa|Comemoração|Música|Convidados
+Aniversário|Parabéns|Bolo|Velas
+Casamento|Noivos|Aliança|Buquê
+Carnaval|Folia|Bloco|Fantasia
+Natal|Presente|Árvore|Ceia
+Réveillon|Virada|Fogos|Contagem
+Festa junina|Quadrilha|Fogueira|Arraial
+Páscoa|Ovos|Chocolate|Coelho
+Halloween|Fantasia|Abóbora|Doces
+Cartas de tarô|Adivinhação|Arcano|Oráculo
+Boliche|Pinos|Pista|Strike
+Sinuca|Taco|Caçapa|Bilhar
+Pingue-pongue|Raquetinha|Bolinha|Mesa
+Paintball|Tinta|Equipe|Máscara
+Rafting|Corredeira|Bote|Remada
+Slackline|Fita|Equilíbrio|Árvores
+Parkour|Saltos|Obstáculos|Prédios
+Maratona de séries|Episódios|Sofá|Madrugada
+`);
+SYN.push(`Celular|Telefone|Smartphone|Notificação
+Computador|Máquina|PC|Processamento
+Notebook|Laptop|Portátil|Bateria
+Tablet|Prancheta|Tela|Leitura
+Teclado|Teclas|Digitar|Letras
+Mouse|Cursor|Clique|Ponteiro
+Monitor|Tela|Display|Imagem
+Impressora|Imprimir|Papel|Tinta
+Câmera|Máquina|Lente|Flash
+Fone de ouvido|Headphone|Música|Cabo
+Caixa de som|Alto-falante|Graves|Volume
+Microfone|Captador|Voz|Palestra
+Televisão|TV|Tela|Novela
+Robô|Autômato|Máquina|Asimov
+Drone|Aeronave|Hélices|Câmera
+Satélite|Órbita|Sinal|Espaço
+Foguete|Nave|Combustível|Decolagem
+Internet|Rede|Web|Conexão
+Wi-Fi|Sinal|Roteador|Senha
+Bluetooth|Pareamento|Fones|Viking
+Senha|Código|Segredo|Acesso
+E-mail|Mensagem|Correio|Arroba
+Aplicativo|App|Ícone|Download
+Site|Página|Endereço|Domínio
+Redes sociais|Perfil|Feed|Curtidas
+Selfie|Autorretrato|Foto|Braço
+Emoji|Carinha|Ícone|Emoticon
+Meme|Piada|Viral|Imagem
+Hashtag|Cerquilha|Tópico|Tendência
+Vídeo|Filme|Imagem|Edição
+Podcast|Áudio|Programa|Episódio
+Streaming|Transmissão|Catálogo|Assinatura
+Algoritmo|Lógica|Passos|Código
+Inteligência artificial|Cérebro|Robô|Aprendizado
+Bateria|Carga|Energia|Duração
+Carregador|Cabo|Carga|Tomada
+Cabo USB|Conector|Fio|Porta
+Pen drive|Memória|Arquivos|Chaveiro
+Processador|Chip|Núcleo|Velocidade
+Placa de vídeo|GPU|Gráficos|Jogos
+Servidor|Host|Nuvem|Dados
+Hacker|Invasor|Código|Capuz
+Vírus|Malware|Infecção|Pandemia
+Realidade virtual|Imersão|Óculos|Simulação
+Impressora 3D|Camadas|Plástico|Protótipo
+QR Code|Quadrado|Leitura|Câmera
+GPS|Navegação|Rota|Satélite
+Radar|Detector|Ondas|Velocidade
+Calculadora|Contas|Números|Soma
+Scanner|Digitalizador|Cópia|Luz
+Smartwatch|Relógio|Pulso|Passos
+Câmera de segurança|Vigilância|Gravação|Prédio
+Alarme|Sirene|Sensor|Segurança
+Interfone|Portaria|Chamada|Apartamento
+Telefone|Aparelho|Ligação|Discar
+Rádio|Emissora|Frequência|Dial
+Walkie-talkie|Rádio|Câmbio|Comunicador
+Painel solar|Placa|Energia|Telhado
+Turbina eólica|Cataventos|Vento|Pás
+Energia elétrica|Eletricidade|Luz|Conta
+Interruptor|Botão|Parede|Lâmpada
+Fio|Cabo|Cobre|Condutor
+Joystick|Controle|Alavanca|Jogos
+Smart TV|Televisão|Aplicativos|Streaming
+Roteador|Modem|Antenas|Luzinhas
+Webcam|Câmera|Reunião|Computador
+Videochamada|Conferência|Rosto|Reunião
+Câmera de ação|Esporte|Capacete|Radical
+Leitor de digital|Biometria|Dedo|Acesso
+Cartão de memória|Armazenamento|Fotos|Câmera
+Placa-mãe|Base|Circuitos|Encaixes
+Ventoinha|Cooler|Hélice|Zumbido
+Banco de dados|Registro|Tabelas|Consulta
+Terminal|Console|Comandos|Linha
+Pixel|Ponto|Resolução|Quadradinho
+`);
+SYN.push(`Violão|Instrumento|Cordas|Serenata
+Piano|Instrumento|Teclas|Concerto
+Bateria musical|Percussão|Baquetas|Ritmo
+Flauta|Sopro|Doce|Encantador
+Violino|Cordas|Arco|Stradivarius
+Trompete|Sopro|Metal|Jazz
+Saxofone|Sopro|Jazz|Curvo
+Tambor|Percussão|Baqueta|Marcha
+Pandeiro|Percussão|Platinelas|Roda
+Sanfona|Acordeão|Fole|Forró
+Berimbau|Arco|Cabaça|Capoeira
+Cavaquinho|Cordas|Samba|Pequeno
+Orquestra|Maestro|Naipes|Sinfonia
+Banda|Conjunto|Grupo|Ensaio
+Show|Espetáculo|Apresentação|Ingresso
+Festival|Evento|Palcos|Lama
+Ópera|Lírico|Soprano|Teatro
+Balé|Dança|Sapatilha|Tutu
+Samba|Ritmo|Tamborim|Desfile
+Funk|Baile|Batida|Grave
+Sertanejo|Viola|Dupla|Interior
+Forró|Dança|Sanfona|Zabumba
+Rock|Guitarra|Rebeldia|Distorção
+Pagode|Roda|Cavaco|Fundo-de-quintal
+Axé|Bahia|Trio-elétrico|Carnaval
+Hip-hop|Rap|Batalha|Grafite
+Pintura|Tela|Tinta|Cavalete
+Escultura|Estátua|Cinzel|Pedra
+Desenho|Traço|Lápis|Rabisco
+Grafite|Muro|Spray|Pichação
+Fotografia|Imagem|Retrato|Revelação
+Poema|Verso|Rima|Soneto
+Romance|Livro|Narrativa|Capítulos
+Quadrinhos|Gibi|Balões|HQ
+Mangá|Japonês|Revista|Leitura
+Filme|Cinema|Película|Cena
+Série|Episódios|Temporada|Maratona
+Novela|Folhetim|Capítulos|Vilã
+Desenho animado|Cartoon|Animação|Sábado
+Documentário|Reportagem|Fatos|Narração
+Comédia|Humor|Riso|Piada
+Terror|Medo|Susto|Escuridão
+Ficção científica|Futuro|Robôs|Naves
+Palco|Tablado|Cortina|Luzes
+Plateia|Público|Cadeiras|Aplauso
+Ingresso|Bilhete|Entrada|Cambista
+Máscara|Disfarce|Rosto|Veneza
+Fantasia de festa|Roupa|Carnaval|Criatividade
+Camarim|Bastidores|Espelho|Artista
+Oscar|Estatueta|Prêmio|Envelope
+Tapete vermelho|Gala|Famosos|Flashes
+Autógrafo|Assinatura|Fã|Fila
+Enciclopédia|Volumes|Saber|Verbetes
+Dicionário|Vocabulário|Palavras|Alfabética
+Jornal|Notícias|Manchete|Banca
+Revista|Publicação|Capa|Banca
+Poesia|Versos|Rima|Metáfora
+Mitologia|Deuses|Lendas|Olimpo
+Lenda|Folclore|Conto|Origem
+Fábula|Moral|Animais|Esopo
+Conto de fadas|Fantasia|Princesas|Final-feliz
+Princesa|Realeza|Coroa|Castelo
+Príncipe|Realeza|Herdeiro|Cavalo-branco
+Bruxa|Feiticeira|Poção|Vassoura
+Fada|Magia|Varinha|Asas
+Gigante|Colosso|Enorme|Feijão
+Dragão|Monstro|Fogo|Escamas
+Fantasma|Assombração|Alma|Lençol
+Vampiro|Drácula|Presas|Noite
+Zumbi|Morto-vivo|Cérebro|Apocalipse
+Lobisomem|Licantropo|Lua-cheia|Uivo
+Sereia|Ninfa|Mar|Canto
+Unicórnio|Chifre|Cavalo|Arco-íris
+Saci|Folclore|Perna|Redemoinho
+Curupira|Folclore|Floresta|Pés
+Iara|Folclore|Rio|Canto
+Papai Noel|Bom-velhinho|Presentes|Chaminé
+Coelhinho da Páscoa|Mascote|Ovos|Cesta
+Pirata|Corsário|Tapa-olho|Papagaio
+Tesouro|Riqueza|Baú|Mapa
+Cavaleiro|Guerreiro|Armadura|Espada
+Super-herói|Justiceiro|Capa|Poderes
+Vilão|Malvado|Inimigo|Plano
+Mágico de circo|Ilusionista|Truque|Cartola
+Gênio da lâmpada|Desejos|Aladim|Fumaça
+Alienígena|Extraterrestre|ET|Nave
+Sombra|Silhueta|Escuridão|Projeção
+Sonho|Devaneio|Noite|Despertar
+Mistério|Enigma|Segredo|Detetive
+Aventura|Jornada|Viagem|Descoberta
+Herói|Valente|Coragem|Destino
+Palhaçada|Bobagem|Bagunça|Circo
+Vitrola|Toca-discos|Agulha|Antiguidade
+Disco de vinil|LP|Agulha|Sulcos
+Rádio antigo|Válvula|Dial|Noticiário
+Ventríloquo|Boneco|Voz|Palco
+`);
+SYN.push(`Carro|Automóvel|Veículo|Garagem
+Moto|Duas-rodas|Capacete|Estrada
+Bicicleta|Bike|Pedal|Ciclovia
+Ônibus|Coletivo|Busão|Catraca
+Caminhão|Carreta|Carga|Estrada
+Trem|Locomotiva|Trilhos|Vagão
+Metrô|Subterrâneo|Linhas|Bilhete
+Avião|Aeronave|Voo|Turbina
+Helicóptero|Aeronave|Hélice|Heliponto
+Barco|Embarcação|Remo|Rio
+Navio|Embarcação|Cruzeiro|Âncora
+Submarino|Periscópio|Fundo|Torpedo
+Jangada|Balsa|Pescador|Vela
+Balsa|Travessia|Rio|Carros
+Lancha|Embarcação|Motor|Velocidade
+Jet ski|Moto-aquática|Onda|Aluguel
+Patinete|Scooter|Guidão|Calçada
+Carroça|Charrete|Cavalo|Roda
+Trator|Máquina|Lavoura|Pneus
+Ambulância|Resgate|Sirene|Socorro
+Táxi|Corrida|Taxímetro|Ponto
+Balão de ar quente|Aeróstato|Cesto|Chama
+Nave espacial|Astronave|Cosmos|Astronautas
+Teleférico|Cabos|Altura|Gôndola
+Bonde|Trilhos|Antigo|Ladeira
+Triciclo|Brinquedo|Pedais|Criança
+Carrinho de compras|Mercado|Cesto|Rodinhas
+Cadeira de rodas|Mobilidade|Assento|Rampa
+Passaporte|Documento|Carimbo|Fronteira
+Passagem|Bilhete|Embarque|Viagem
+Bagagem|Mala|Despacho|Esteira
+Pedágio|Taxa|Cancela|Estrada
+Semáforo|Sinal|Vermelho|Cruzamento
+Faixa de pedestre|Travessia|Zebra|Rua
+Cinto de segurança|Trava|Clique|Proteção
+Buzina|Som|Trânsito|Impaciência
+Pneu|Borracha|Roda|Calibragem
+Volante|Direção|Mãos|Giro
+Freio|Pedal|Parada|Rangido
+Estacionamento de rua|Vaga|Flanelinha|Meio-fio
+Caminhonete|Picape|Carroceria|Fazenda
+Kombi|Furgão|Hippie|Clássica
+Trólebus|Ônibus|Fios|Elétrico
+Navio pirata|Veleiro|Bandeira|Mastro
+Canoa havaiana|Polinésia|Remos|Pacífico
+`);
+SYN.push(`Camiseta|Blusa|Algodão|Estampa
+Camisa|Social|Botões|Colarinho
+Calça|Jeans|Pernas|Cinto
+Bermuda|Short|Verão|Joelho
+Short|Calção|Esporte|Verão
+Saia|Peça|Cintura|Vento
+Vestido|Traje|Festa|Barra
+Casaco|Agasalho|Inverno|Zíper
+Jaqueta|Casaco|Couro|Motoqueiro
+Moletom|Agasalho|Capuz|Conforto
+Blusa|Camiseta|Manga|Feminina
+Gravata|Nó|Pescoço|Executivo
+Terno|Traje|Paletó|Formatura
+Paletó|Terno|Casaco|Lapela
+Colete|Peça|Sem-manga|Alfaiataria
+Meia|Pés|Par|Gaveta
+Sapato|Calçado|Couro|Cadarço
+Tênis de corrida|Calçado|Amortecimento|Treino
+Chinelo|Calçado|Dedo|Praia
+Sandália|Calçado|Aberta|Tiras
+Bota|Calçado|Cano|Barro
+Salto alto|Calçado|Altura|Baile
+Chapéu|Cobertura|Aba|Sol
+Boné|Aba|Cabeça|Time
+Gorro|Touca|Lã|Frio
+Touca de natação|Silicone|Cabelo|Piscina
+Cachecol|Pescoço|Lã|Inverno
+Luvas|Mãos|Dedos|Frio
+Cinto|Fivela|Cintura|Couro
+Óculos de sol|Lentes|Proteção|Verão
+Relógio de pulso|Ponteiros|Pulseira|Herança
+Brinco|Joia|Orelha|Par
+Colar|Joia|Pescoço|Pingente
+Pulseira|Joia|Punho|Charm
+Anel|Joia|Dedo|Poder
+Aliança|Anel|Casamento|Compromisso
+Biquíni|Praia|Duas-peças|Verão
+Sunga|Praia|Banho|Salva-vidas
+Maiô|Piscina|Inteiro|Natação
+Pijama|Dormir|Conforto|Flanela
+Roupão|Banho|Felpudo|Spa
+Avental|Cozinha|Proteção|Churrasqueiro
+Jaleco|Branco|Laboratório|Bolso
+Perfume|Fragrância|Frasco|Rastro
+Batom|Lábios|Cor|Maquiagem
+Esmalte|Unhas|Cor|Acetona
+Rímel|Cílios|Preto|Maquiagem
+Peruca|Cabelo|Disfarce|Careca
+Lenço|Pano|Nariz|Pescoço
+Fralda|Bebê|Troca|Descartável
+Chupeta|Bebê|Bico|Silêncio
+Mamadeira|Bebê|Leite|Bico
+Meia-calça|Segunda-pele|Transparente|Desfia
+Sobretudo|Casaco|Longo|Inverno
+Kimono|Japonês|Faixa|Cerimônia
+Poncho|Andino|Frio|Lã
+Camisola|Dormir|Feminina|Renda
+Cueca|Íntima|Elástico|Gaveta
+Uniforme escolar|Farda|Aula|Brasão
+Fantasia de super-herói|Capa|Festa|Criança
+Capa de chuva|Impermeável|Plástico|Capuz
+Tiara|Enfeite|Cabeça|Coroa
+Gravata-borboleta|Laço|Formal|Padrinho
+Smoking|Gala|Preto|Baile
+Véu|Noiva|Rosto|Igreja
+Mochila de viagem|Bagagem|Costas|Mochileiro
+`);
+SYN.push(`Coração|Órgão|Peito|Batimento
+Cérebro|Órgão|Cabeça|Neurônios
+Pulmão|Órgão|Respiração|Fôlego
+Estômago|Órgão|Digestão|Ácido
+Fígado|Órgão|Filtro|Ressaca
+Rim|Órgão|Filtro|Pedra
+Osso|Esqueleto|Fratura|Cálcio
+Músculo|Força|Bíceps|Treino
+Pele|Epiderme|Toque|Arrepio
+Cabelo|Fios|Madeixa|Corte
+Unha|Dedo|Esmalte|Ansiedade
+Dente|Esmalte|Mordida|Fada
+Língua|Boca|Sabor|Fala
+Olho|Visão|Pupila|Íris
+Nariz|Olfato|Narinas|Pinóquio
+Orelha|Audição|Brinco|Conchinha
+Boca|Lábios|Dentes|Beijo
+Pescoço|Colo|Cabeça|Colar
+Ombro|Articulação|Braço|Apoio
+Cotovelo|Articulação|Braço|Batida
+Joelho|Articulação|Perna|Ralado
+Tornozelo|Articulação|Pé|Torção
+Dedo|Mão|Polegar|Anel
+Mão|Palma|Dedos|Aperto
+Pé|Planta|Dedos|Passos
+Barriga|Abdômen|Pança|Umbigo
+Umbigo|Cicatriz|Barriga|Cordão
+Costas|Dorso|Coluna|Massagem
+Barba|Pelos|Queixo|Navalha
+Bigode|Pelos|Lábio|Chaplin
+Sobrancelha|Pelos|Olho|Arco
+Cílios|Pelos|Pálpebra|Rímel
+Suor|Transpiração|Calor|Testa
+Lágrima|Choro|Olho|Salgada
+Sangue|Líquido|Veias|Doação
+Febre|Temperatura|Termômetro|Calafrio
+Gripe|Doença|Vírus|Inverno
+Tosse|Garganta|Xarope|Barulho
+Espirro|Nariz|Atchim|Poeira
+Soluço|Diafragma|Susto|Água
+Bocejo|Sono|Cansaço|Contagioso
+Cócegas|Risada|Toque|Axila
+Dor de cabeça|Enxaqueca|Analgésico|Têmporas
+Vacina|Agulha|Imunização|Carteirinha
+Curativo|Band-aid|Ferida|Gaze
+Remédio|Medicamento|Comprimido|Bula
+Termômetro|Febre|Temperatura|Mercúrio
+Muleta|Apoio|Perna|Axila
+Gesso|Fratura|Osso|Assinaturas
+Raio-X|Chapa|Radiografia|Esqueleto
+Aparelho nos dentes|Ortodontia|Ferros|Sorriso
+Sono|Descanso|Cama|Noite
+Pesadelo|Sonho|Susto|Escuro
+Ronco|Barulho|Nariz|Noite
+Cicatriz|Marca|Corte|História
+Pinta|Mancha|Pele|Marca
+Sarda|Manchinha|Sol|Rosto
+Covinha|Buraco|Bochecha|Sorriso
+Calo|Dureza|Pé|Sapato
+Bolha|Ferida|Líquido|Caminhada
+Hematoma|Roxo|Pancada|Mancha
+Resfriado|Gripe|Nariz|Lenço
+Alergia|Coceira|Reação|Pólen
+Check-up|Exames|Rotina|Jejum
+Maca|Cama|Hospital|Rodinhas
+Soro|Veia|Hospital|Gotas
+Estetoscópio|Ouvir|Médico|Coração
+Cadeira de dentista|Consultório|Reclinada|Luz
+`);
+SYN.push(`Beijo|Selinho|Lábios|Príncipe
+Beijo de língua|Amasso|Francês|Portão
+Namoro|Relacionamento|Casal|Status
+Paquera|Flerte|Olhares|Conquista
+Lua de mel|Viagem|Recém-casados|Champanhe
+Lingerie|Renda|Íntima|Sedução
+Cueca samba-canção|Ceroula|Solta|Pijama
+Calcinha|Íntima|Feminina|Gaveta
+Sutiã|Íntimo|Alça|Bojo
+Fio dental|Mínimo|Íntimo|Bronzeado
+Cinta-liga|Meia|Lingerie|Cabaré
+Algemas|Prisão|Pulsos|Confiança
+Chicote|Açoite|Couro|Domador
+Vibrador|Brinquedo|Zumbido|Gaveta
+Camisinha|Preservativo|Látex|Prevenção
+Pílula anticoncepcional|Contraceptivo|Cartela|Esquecimento
+Lubrificante|Gel|Escorregadio|Frasco
+Preliminares|Carícias|Aquecimento|Prelúdio
+Orgasmo|Clímax|Prazer|Ápice
+Gemido|Suspiro|Prazer|Parede
+Strip-tease|Dança|Despir|Sedução
+Pole dance|Barra|Dança|Acrobacia
+Massagem erótica|Relaxamento|Óleo|Sensual
+Sexo|Intimidade|Transa|Cama
+Sexo oral|Carícia|Boca|Preliminar
+Posição|Variação|Kama-sutra|Criatividade
+Fetiche|Obsessão|Desejo|Couro
+Fantasia sexual|Desejo|Imaginação|Segredo
+Ménage|Trio|Ousadia|Três
+Swing|Troca|Casais|Clube
+Sexting|Mensagem|Quente|Celular
+Nudes|Fotos|Íntimas|Vazamento
+Ficante|Rolo|Casual|Fim-de-semana
+Amante|Outro|Escondido|Segredo
+Traição|Infidelidade|Pulada|Confiança
+Chifre|Corno|Traído|Touro
+Pegação|Beijos|Festa|Noite
+Ressaca|Dia-seguinte|Enjoo|Arrependimento
+Bebedeira|Exagero|Bebida|Vexame
+Porre|Bêbado|Embriaguez|Tontura
+Balada|Noitada|Pista|Madrugada
+Motel|Hospedagem|Suíte|Garagem
+Suíte|Quarto|Privativo|Banheira
+Banheira de hidromassagem|Jatos|Espuma|Casal
+Viagra|Comprimido|Azul|Potência
+Ereção|Excitação|Rigidez|Manhã
+Seios|Peitos|Busto|Amamentação
+Bunda|Bumbum|Traseiro|Curvas
+Mamilo|Seio|Bico|Arrepio
+Pelos|Cabelos|Corpo|Navalha
+Depilação|Cera|Pelos|Vaidade
+Virgindade|Pureza|Primeira|Tabu
+Primeira vez|Estreia|Nervosismo|Iniciação
+Pílula do dia seguinte|Emergência|Contraceptivo|Farmácia
+Cantada|Investida|Conquista|Gancho
+Sedução|Charme|Conquista|Olhar
+Tesão|Desejo|Vontade|Fogo
+Safadeza|Malícia|Travessura|Sorriso
+Putaria|Libertinagem|Baixaria|Pudor
+Boquete|Oral|Boca|Gíria
+Punheta|Masturbação|Mão|Solitário
+Siririca|Masturbação|Toque|Solitária
+Transar|Copular|Namorar|Cama
+Gozar|Clímax|Prazer|Final
+Pênis|Órgão|Masculino|Apelido
+Vagina|Órgão|Feminino|Canal
+Clitóris|Órgão|Prazer|Anatomia
+Testículos|Bolas|Saco|Masculino
+Pornô|Erótico|Adulto|Proibido
+Site adulto|Erótico|Explícito|Anônimo
+Revista adulta|Erótica|Fotos|Banca
+Sex shop|Loja|Brinquedos|Discreta
+Boneca inflável|Brinquedo|Plástico|Solitário
+Garota de programa|Acompanhante|Cobra|Anúncio
+Orgia|Bacanal|Suruba|Libertina
+Masturbação|Autoprazer|Solitária|Tabu
+Sexo anal|Íntimo|Traseiro|Lubrificante
+Dark room|Escuro|Anônimo|Clube
+Boate de strip|Dançarinas|Palco|Notas
+Lap dance|Dança|Colo|Sensual
+Sexo no chuveiro|Banho|Vapor|Escorregão
+Sexo no carro|Banco|Vidro|Aperto
+Beijo no pescoço|Carícia|Arrepio|Nuca
+Mordida|Dentes|Marca|Paixão
+Chupão|Marca|Pescoço|Roxo
+Mão boba|Toque|Intruso|Travessura
+Gostosa|Elogio|Sensual|Assobio
+Gostoso|Elogio|Sensual|Olhar
+Pelado|Nu|Sem-roupa|Rio
+Nudismo|Naturismo|Despido|Praia
+Topless|Seios|Praia|Europa
+Maiô cavado|Decote|Ousado|Piscina
+Vestido decotado|Decote|Sensual|Festa
+Cama de casal|Colchão|Dupla|Grande
+Sexo casual|Rapidinha|Descompromissado|Uma-noite
+Quarto vermelho|Sedução|Luz|Ousadia
+Jogo de sedução|Desafio|Cartas|Prendas
+Strip poker|Aposta|Roupa|Baralho
+Verdade ou desafio|Prenda|Perguntas|Garrafa
+Beijo triplo|Trio|Festa|Loucura
+Despedida de solteiro|Festa|Noivo|Amigos
+Chá de lingerie|Presentes|Noiva|Vergonha
+Tesão proibido|Desejo|Segredo|Elevador
+Afrodisíaco|Estimulante|Desejo|Ostra
+Sexo selvagem|Intenso|Arranhão|Fôlego
+Gemido alto|Barulho|Prazer|Vizinhos
+`);
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var KEY='impostor.v1', THEME_KEY='impostor.theme';
+
+/* ---------- palavras ---------- */
+var WORDS=[], CATS=[], seenWords={};
+DATA.forEach(function(g){
+  var count=0;
+  g.t.split('\n').forEach(function(line){
+    line=line.trim(); if(!line) return;
+    var p=line.split('|'); if(p.length<4) return;
+    var k=p[0].trim().toLowerCase(); if(seenWords[k]) return; seenWords[k]=1;
+    WORDS.push({w:p[0].trim(),f:p[1].trim(),m:p[2].trim(),d:p[3].trim(),c:g.c,adult:!!g.adult});
+    count++;
+  });
+  CATS.push({name:g.c,adult:!!g.adult,count:count});
+});
+/* dicas: uma palavra sinônima/relacionada (fácil=próxima, média=relacionada, difícil=distante) */
+var SYNM={};
+SYN.forEach(function(t){
+  t.split('\n').forEach(function(l){
+    l=l.trim(); if(!l) return;
+    var p=l.split('|'); if(p.length<4) return;
+    SYNM[p[0].trim().toLowerCase()]={f:p[1].trim(),m:p[2].trim(),d:p[3].trim()};
+  });
+});
+WORDS.forEach(function(w){
+  var n=SYNM[w.w.toLowerCase()];
+  if(n){ w.f=n.f; w.m=n.m; w.d=n.d; }
+});
+
+/* ---------- estado ---------- */
+var S={players:[],imp:1,hint:false,level:'f',rounds:3,cats:{},adultOK:false,used:{},round:null,game:null};
+CATS.forEach(function(c){ if(!c.adult) S.cats[c.name]=true; });
+
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY); if(!raw) return;
+    var d=JSON.parse(raw);
+    if(Array.isArray(d.players)) S.players=d.players.filter(function(n){return typeof n==='string'}).slice(0,20);
+    if(d.imp===2) S.imp=2;
+    S.hint=!!d.hint;
+    if(['f','m','d'].indexOf(d.level)>-1) S.level=d.level;
+    if(typeof d.rounds==='number'&&d.rounds>=1&&d.rounds<=20) S.rounds=Math.round(d.rounds);
+    if(Array.isArray(d.cats)){
+      S.cats={};
+      d.cats.forEach(function(n){ var c=CATS.filter(function(x){return x.name===n&&!x.adult})[0]; if(c) S.cats[n]=true; });
+    }
+  }catch(e){}
+}
+function save(){
+  try{
+    var cats=Object.keys(S.cats).filter(function(n){ var c=CATS.filter(function(x){return x.name===n})[0]; return S.cats[n]&&c&&!c.adult; });
+    localStorage.setItem(KEY,JSON.stringify({players:S.players,imp:S.imp,hint:S.hint,level:S.level,rounds:S.rounds,cats:cats}));
+  }catch(e){}
+}
+
+/* ---------- utilidades ---------- */
+function rnd(n){ return Math.floor(Math.random()*n); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function el(tag,cls,text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+function fmt(n){ return n.toLocaleString('pt-BR'); }
+var LEVEL_NAME={f:'fácil',m:'média',d:'difícil'};
+
+/* ---------- tema ---------- */
+var root=document.documentElement, themeBtn=$('#themeBtn');
+var SUN='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+var MOON='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+function effectiveTheme(){
+  var t=root.getAttribute('data-theme'); if(t) return t;
+  return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+}
+function paintThemeBtn(){
+  var dark=effectiveTheme()==='dark';
+  themeBtn.innerHTML=dark?SUN:MOON;
+  themeBtn.setAttribute('aria-label',dark?'Mudar para modo claro':'Mudar para modo escuro');
+}
+try{ var st=localStorage.getItem(THEME_KEY); if(st==='dark'||st==='light') root.setAttribute('data-theme',st); }catch(e){}
+themeBtn.addEventListener('click',function(){
+  var next=effectiveTheme()==='dark'?'light':'dark';
+  root.setAttribute('data-theme',next);
+  try{ localStorage.setItem(THEME_KEY,next); }catch(e){}
+  paintThemeBtn();
+});
+if(window.matchMedia){ try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',paintThemeBtn); }catch(e){} }
+paintThemeBtn();
+
+/* ---------- telas ---------- */
+var SCREENS=['setup','reveal','play','vote','verdict','guess','result','final'];
+function show(name){
+  SCREENS.forEach(function(s){ $('#s-'+s).hidden=(s!==name); });
+  window.scrollTo(0,0);
+  if(name!=='play') stopTimer();
+}
+
+/* ---------- configuração ---------- */
+var nameInput=$('#nameInput'), nameMsg=$('#nameMsg');
+
+function renderPlayers(){
+  var ul=$('#players'); ul.innerHTML='';
+  S.players.forEach(function(n,i){
+    var li=el('li'); li.appendChild(el('span',null,n));
+    var b=el('button'); b.type='button'; b.setAttribute('aria-label','Remover '+n);
+    b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    b.addEventListener('click',function(){ S.players.splice(i,1); save(); renderPlayers(); });
+    li.appendChild(b); ul.appendChild(li);
+  });
+  var n=S.players.length;
+  $('#playerCount').innerHTML='<b>'+n+'</b> '+(n===1?'jogador':'jogadores')+(n<3?' · faltam '+(3-n)+' para começar':'');
+  var can2=n>=5, r2=$('#imp2');
+  r2.disabled=!can2;
+  if(!can2&&S.imp===2){ S.imp=1; }
+  $$('input[name=imp]').forEach(function(r){ r.checked=(Number(r.value)===S.imp); });
+  $('#impHelp').textContent=can2?'Com 2 impostores, nenhum deles sabe quem é o outro.':'Dois impostores só ficam disponíveis com 5 ou mais jogadores.';
+  updateStart();
+}
+
+function addPlayer(){
+  var v=nameInput.value.replace(/\s+/g,' ').trim();
+  nameMsg.textContent='';
+  if(!v){ nameMsg.textContent='Escreva um nome para adicionar.'; nameInput.focus(); return; }
+  if(S.players.length>=20){ nameMsg.textContent='O limite é de 20 jogadores.'; return; }
+  var low=v.toLowerCase();
+  if(S.players.some(function(p){return p.toLowerCase()===low})){ nameMsg.textContent='Já existe alguém com esse nome. Use um apelido para diferenciar.'; nameInput.focus(); return; }
+  S.players.push(v); nameInput.value=''; save(); renderPlayers(); nameInput.focus();
+}
+$('#addForm').addEventListener('submit',function(e){ e.preventDefault(); addPlayer(); });
+
+function renderCats(){
+  var box=$('#cats'); box.innerHTML='';
+  CATS.forEach(function(c){
+    var b=el('button','chip'+(c.adult?' adult':'')); b.type='button';
+    b.setAttribute('aria-pressed',S.cats[c.name]?'true':'false');
+    b.appendChild(el('span',null,c.name));
+    if(c.adult) b.appendChild(el('span','tag','18+'));
+    b.appendChild(el('small',null,fmt(c.count)));
+    b.addEventListener('click',function(){
+      if(c.adult&&!S.cats[c.name]&&!S.adultOK){ $('#gate').hidden=false; $('#gateYes').focus(); return; }
+      S.cats[c.name]=!S.cats[c.name]; save(); renderCats();
+    });
+    box.appendChild(b);
+  });
+  updateStart();
+}
+$('#gateYes').addEventListener('click',function(){
+  S.adultOK=true; var a=CATS.filter(function(c){return c.adult})[0]; if(a) S.cats[a.name]=true;
+  $('#gate').hidden=true; renderCats();
+});
+$('#gateNo').addEventListener('click',function(){ $('#gate').hidden=true; });
+$('#allCats').addEventListener('click',function(){
+  CATS.forEach(function(c){ if(!c.adult||S.adultOK) S.cats[c.name]=true; });
+  var ad=CATS.some(function(c){return c.adult}); if(ad&&!S.adultOK){ $('#gate').hidden=false; }
+  save(); renderCats();
+});
+$('#noCats').addEventListener('click',function(){ S.cats={}; save(); renderCats(); });
+
+$$('input[name=imp]').forEach(function(r){ r.addEventListener('change',function(){ if(r.checked){ S.imp=Number(r.value); save(); } }); });
+$$('input[name=hint]').forEach(function(r){ r.addEventListener('change',function(){
+  if(r.checked){ S.hint=(r.value==='1'); $('#levels').hidden=!S.hint; save(); }
+}); });
+$$('input[name=level]').forEach(function(r){ r.addEventListener('change',function(){ if(r.checked){ S.level=r.value; save(); } }); });
+
+function poolSize(){
+  return WORDS.filter(function(w){ return S.cats[w.c]&&(!w.adult||S.adultOK); }).length;
+}
+function updateStart(){
+  var n=S.players.length, p=poolSize(), btn=$('#startBtn'), hint=$('#startHint');
+  var ok=n>=3&&p>0;
+  btn.disabled=!ok;
+  hint.textContent = n<3 ? 'Adicione pelo menos 3 jogadores.' : (p===0 ? 'Escolha ao menos um tema.' : fmt(p)+' palavras nos temas escolhidos.');
+}
+
+/* rodadas */
+var ROUND_PRESETS=[1,3,5,10,20];
+function renderRounds(){
+  $('#roundsInput').value=S.rounds;
+  var box=$('#roundChips'); box.innerHTML='';
+  ROUND_PRESETS.forEach(function(n){
+    var b=el('button','chip',n+(n===1?' rodada':' rodadas')); b.type='button';
+    b.setAttribute('aria-pressed',S.rounds===n?'true':'false');
+    b.addEventListener('click',function(){ setRounds(n); });
+    box.appendChild(b);
+  });
+}
+function setRounds(v){
+  v=Math.round(Number(v)); if(!isFinite(v)||v<1) v=1; if(v>20) v=20;
+  S.rounds=v; save(); renderRounds();
+}
+$('#roundsMinus').addEventListener('click',function(){ setRounds(S.rounds-1); });
+$('#roundsPlus').addEventListener('click',function(){ setRounds(S.rounds+1); });
+$('#roundsInput').addEventListener('change',function(){ setRounds(this.value); });
+$('#roundsInput').addEventListener('blur',function(){ setRounds(this.value); });
+
+function syncControls(){
+  renderRounds();
+  $$('input[name=hint]').forEach(function(r){ r.checked=((r.value==='1')===S.hint); });
+  $$('input[name=level]').forEach(function(r){ r.checked=(r.value===S.level); });
+  $('#levels').hidden=!S.hint;
+  $('#foot').textContent=fmt(WORDS.length)+' palavras em '+CATS.length+' temas';
+}
+
+/* ---------- rodada ---------- */
+function newRound(){
+  var pool=WORDS.filter(function(w){ return S.cats[w.c]&&(!w.adult||S.adultOK); });
+  if(!pool.length) return false;
+  var avail=pool.filter(function(w){ return !S.used[w.w]; });
+  if(!avail.length){ pool.forEach(function(w){ delete S.used[w.w]; }); avail=pool; }
+  var w=avail[rnd(avail.length)]; S.used[w.w]=1;
+  var n=S.players.length, k=(S.imp===2&&n>=5)?2:1;
+  var idx=shuffle(S.players.map(function(_,i){return i}));
+  var imps={}; idx.slice(0,k).forEach(function(i){ imps[i]=true; });
+  S.round={word:w,imps:imps,k:k,i:0,seen:false,starter:rnd(n),hint:S.hint,level:S.level,vote:null};
+  return true;
+}
+
+/* ---------- revelação ---------- */
+var stage=$('#stage'), curtain=$('#curtain'), roleBox=$('#role'), nextBtn=$('#nextBtn');
+var dragging=false, startY=0, hidden=true;
+
+function buildRole(i){
+  var r=S.round; roleBox.innerHTML='';
+  if(r.imps[i]){
+    roleBox.className='role bad';
+    roleBox.appendChild(el('p','kick','Você é o impostor'));
+    if(r.hint){
+      roleBox.appendChild(el('p','lab','Dica ('+LEVEL_NAME[r.level]+')'));
+      roleBox.appendChild(el('p','word',r.word[r.level]));
+    }else{
+      roleBox.appendChild(el('p','word sm','Sem dica. Escute os outros e descubra a palavra.'));
+    }
+    roleBox.appendChild(el('p','note', r.k===2 ? 'Existe outro impostor na mesa, mas você não sabe quem é. Não deixe ninguém desconfiar de você.' : 'Finja que sabe a palavra e não deixe ninguém desconfiar de você.'));
+  }else{
+    roleBox.className='role good';
+    roleBox.appendChild(el('p','kick','Você é inocente'));
+    roleBox.appendChild(el('p','lab','A palavra secreta é'));
+    roleBox.appendChild(el('p','word',r.word.w));
+    roleBox.appendChild(el('p','note','Dê pistas que mostrem que você sabe, sem entregar a palavra ao impostor.'));
+  }
+}
+
+function setReveal(i){
+  var r=S.round, n=S.players.length;
+  r.i=i; r.seen=false;
+  $('#whoName').textContent=S.players[i];
+  buildRole(i);
+  $('#progText').textContent='Rodada '+S.game.n+' de '+S.game.total+' · Jogador '+(i+1)+' de '+n;
+  var dots=$('#dots'); dots.innerHTML='';
+  for(var j=0;j<n;j++){ var d=document.createElement('i'); d.className=j<i?'done':(j===i?'now':''); dots.appendChild(d); }
+  nextBtn.disabled=true;
+  nextBtn.textContent='Deslize para ver seu papel';
+  setCurtain(0,false);
+}
+
+function setCurtain(dy,animate){
+  curtain.classList.toggle('drag',!!animate);
+  curtain.style.transform=dy?'translateY('+dy+'px)':'';
+  var open=dy<-20;
+  roleBox.setAttribute('aria-hidden',open?'false':'true');
+  if(open&&!S.round.seen){
+    var h=stage.clientHeight;
+    if(-dy>h*0.4){
+      S.round.seen=true; nextBtn.disabled=false;
+      nextBtn.textContent=(S.round.i<S.players.length-1)?'Já vi, passar para o próximo':'Já vi, começar a partida';
+    }
+  }
+}
+
+curtain.addEventListener('pointerdown',function(e){
+  dragging=true; startY=e.clientY;
+  try{ curtain.setPointerCapture(e.pointerId); }catch(x){}
+  curtain.classList.add('drag');
+});
+curtain.addEventListener('pointermove',function(e){
+  if(!dragging) return;
+  var h=stage.clientHeight, dy=Math.max(-h*0.96,Math.min(0,e.clientY-startY));
+  setCurtain(dy,true);
+});
+function endDrag(){
+  if(!dragging) return; dragging=false;
+  setCurtain(0,false);
+}
+curtain.addEventListener('pointerup',endDrag);
+curtain.addEventListener('pointercancel',endDrag);
+curtain.addEventListener('lostpointercapture',endDrag);
+curtain.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+curtain.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.key===' '||e.key==='ArrowUp'){
+    e.preventDefault();
+    if(!e.repeat) setCurtain(-stage.clientHeight*0.96,false);
+  }
+});
+curtain.addEventListener('keyup',function(e){
+  if(e.key==='Enter'||e.key===' '||e.key==='ArrowUp'){ e.preventDefault(); setCurtain(0,false); }
+});
+curtain.addEventListener('blur',function(){ if(!dragging) setCurtain(0,false); });
+document.addEventListener('visibilitychange',function(){ if(document.hidden){ dragging=false; if(S.round&&!$('#s-reveal').hidden) setCurtain(0,false); } });
+
+nextBtn.addEventListener('click',function(){
+  var r=S.round;
+  if(!r.seen) return;
+  if(r.i<S.players.length-1){ setReveal(r.i+1); window.scrollTo(0,0); }
+  else startPlay();
+});
+
+/* ---------- partida ---------- */
+var timerId=null, t0=0;
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+function startPlay(){
+  $('#starter').textContent=S.players[S.round.starter];
+  $('#playEyebrow').textContent='Rodada '+S.game.n+' de '+S.game.total;
+  show('play');
+  t0=Date.now(); $('#timer').textContent='00:00';
+  stopTimer();
+  timerId=setInterval(function(){
+    var s=Math.floor((Date.now()-t0)/1000), m=Math.floor(s/60); s=s%60;
+    $('#timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  },500);
+}
+
+/* ---------- votação ---------- */
+var B=null, V=null;
+function pname(i){ return S.players[i]; }
+
+function startVote(){
+  var r=S.round;
+  r.vote={alive:S.players.map(function(_,i){return i}),caught:[],wrongs:0,rounds:0,maxRounds:r.k===1?1:3,maxWrongs:r.k===1?0:1};
+  beginBallot(null);
+}
+function strikesText(){
+  var r=S.round, v=r.vote;
+  if(r.k===1) return 'Votação única';
+  return 'Votação '+(v.rounds+1)+' de '+v.maxRounds+' · Erros '+v.wrongs+' de '+v.maxWrongs;
+}
+function beginBallot(restrict){
+  var r=S.round, v=r.vote;
+  B={voters:v.alive.slice(),vi:0,counts:{},restrict:restrict,revote:!!restrict};
+  $('#voteProg').textContent=strikesText();
+  var note;
+  if(restrict) note='Empate! Votem de novo só entre: '+restrict.map(pname).join(', ')+'.';
+  else if(r.k===1) note='Vocês têm uma única chance. Se o grupo errar, o impostor vence.';
+  else if(v.wrongs===0) note='O grupo pode errar uma vez. No segundo erro, os impostores vencem.';
+  else note='Vocês já erraram uma vez. Mais um erro e os impostores vencem.';
+  $('#voteNote').textContent=note;
+  show('vote'); showVoter();
+}
+function showVoter(){
+  $('#voteGate').hidden=false; $('#votePick').hidden=true;
+  $('#voterName').textContent=pname(B.voters[B.vi]);
+  $('#voteCount').textContent='Voto '+(B.vi+1)+' de '+B.voters.length;
+  window.scrollTo(0,0);
+}
+function openPick(){
+  var voter=B.voters[B.vi], v=S.round.vote;
+  var cands=(B.restrict||v.alive).filter(function(i){return i!==voter});
+  $('#pickWho').textContent='Voto de '+pname(voter);
+  var list=$('#pickList'); list.innerHTML='';
+  cands.forEach(function(c){
+    var b=el('button','btn ghost pick',pname(c)); b.type='button';
+    b.addEventListener('click',function(){ castVote(c); });
+    list.appendChild(b);
+  });
+  $('#voteGate').hidden=true; $('#votePick').hidden=false;
+  window.scrollTo(0,0);
+}
+function castVote(c){
+  B.counts[c]=(B.counts[c]||0)+1; B.vi++;
+  if(B.vi<B.voters.length) showVoter(); else tally();
+}
+function tally(){
+  var ids=Object.keys(B.counts).map(Number);
+  var max=Math.max.apply(null,ids.map(function(i){return B.counts[i]}));
+  var tied=ids.filter(function(i){return B.counts[i]===max});
+  if(tied.length>1&&!B.revote){ beginBallot(tied); return; }
+  showVerdict(tied.length>1?null:tied[0],tied);
+}
+function showVerdict(accused,tied){
+  V={accused:accused};
+  var rows=$('#tally'); rows.innerHTML='';
+  Object.keys(B.counts).map(Number).sort(function(a,b){return B.counts[b]-B.counts[a]}).forEach(function(i){
+    var row=el('div','trow'); row.appendChild(el('span',null,pname(i)));
+    row.appendChild(el('b',null,B.counts[i]+(B.counts[i]===1?' voto':' votos'))); rows.appendChild(row);
+  });
+  $('#vdBox').hidden=true; $('#vdNext').hidden=true; $('#vdBox').innerHTML='';
+  var tie=$('#vdTie'); tie.innerHTML='';
+  if(accused==null){
+    $('#vdEyebrow').textContent='Empate de novo';
+    $('#vdName').textContent='O grupo decide';
+    $('#vdReveal').hidden=true; tie.hidden=false;
+    tie.appendChild(el('p','muted','Conversem e escolham quem será acusado:'));
+    tied.forEach(function(i){
+      var b=el('button','btn ghost pick','Acusar '+pname(i)); b.type='button';
+      b.addEventListener('click',function(){
+        V.accused=i; tie.hidden=true; $('#vdEyebrow').textContent='Acusado'; $('#vdName').textContent=pname(i); $('#vdReveal').hidden=false;
+      });
+      tie.appendChild(b);
+    });
+  }else{
+    $('#vdEyebrow').textContent='Mais votado';
+    $('#vdName').textContent=pname(accused);
+    tie.hidden=true; $('#vdReveal').hidden=false;
+  }
+  show('verdict');
+}
+function applyVerdict(){
+  var r=S.round, v=r.vote, a=V.accused, isImp=!!r.imps[a];
+  v.rounds++;
+  v.alive=v.alive.filter(function(x){return x!==a});
+  if(isImp) v.caught.push(a); else v.wrongs++;
+  var all=v.caught.length===r.k;
+  var over=!all&&(v.wrongs>v.maxWrongs||v.rounds>=v.maxRounds);
+  var title,detail;
+  if(isImp){
+    title=pname(a)+' é impostor!';
+    if(all) detail=r.k===1?'Vocês descobriram o impostor.':'Vocês descobriram os dois impostores.';
+    else if(over) detail='As votações acabaram e ainda resta um impostor escondido. Os impostores vencem.';
+    else detail='Um impostor a menos. Ainda falta um, e vocês têm mais '+(v.maxRounds-v.rounds)+' '+((v.maxRounds-v.rounds)===1?'votação':'votações')+'.';
+  }else{
+    title=pname(a)+' é inocente.';
+    if(over) detail=r.k===1?'O grupo errou na única votação. O impostor vence.':(v.wrongs>v.maxWrongs?'Segundo erro do grupo. Os impostores vencem.':'As votações acabaram. Os impostores vencem.');
+    else detail='Primeiro erro do grupo. Mais um e os impostores vencem. '+pname(a)+' sai das próximas votações.';
+  }
+  var box=$('#vdBox'); box.innerHTML='';
+  box.className='vbox '+(isImp?'bad':'good');
+  box.appendChild(el('p','kick',isImp?'Papel revelado: impostor':'Papel revelado: inocente'));
+  box.appendChild(el('p','vt',title));
+  box.appendChild(el('p','vd',detail));
+  box.hidden=false; $('#vdReveal').hidden=true;
+  var next=$('#vdNext'); next.hidden=false;
+  if(all){ next.textContent='Chute final do impostor'; next.onclick=function(){ showGuess(); }; }
+  else if(over){ next.textContent='Ver resultado final'; next.onclick=function(){ showResult('imp-vote',r.k===1?'O grupo errou a votação única.':(v.wrongs>v.maxWrongs?'O grupo errou duas vezes.':'As três votações terminaram sem descobrir os dois impostores.')); }; }
+  else { next.textContent='Próxima votação'; next.onclick=function(){ beginBallot(null); }; }
+}
+function showGuess(){
+  var r=S.round;
+  $('#guessText').textContent=r.k===1?'O impostor foi descoberto, mas tem uma chance de virar o jogo: se acertar a palavra secreta, ele vence.':'Os dois impostores foram descobertos, mas têm uma chance de virar o jogo: se acertarem a palavra secreta, eles vencem.';
+  show('guess');
+}
+
+function showResult(kind,detail){
+  var r=S.round, imps=[], good=[];
+  var oc=$('#resOutcome'), picker=$('#resPick'), after=$('#resAfter');
+  picker.hidden=true; after.hidden=false; oc.hidden=false;
+  if(kind==='skip'){
+    oc.className='outcome';
+    $('#resTitle').textContent='Quem venceu esta rodada?';
+    $('#resDetail').textContent='Como não houve votação, o grupo decide.';
+    $('#resPts').textContent='';
+    picker.hidden=false; after.hidden=true;
+  }else{
+    var inno=(kind==='inno'||kind==='win-inno');
+    oc.className='outcome '+(inno?'good':'bad');
+    $('#resTitle').textContent=inno?'Inocentes venceram':(r.k===1?'O impostor venceu':'Os impostores venceram');
+    var d;
+    if(kind==='win-inno'||kind==='win-imp') d='Decidido pelo grupo.';
+    else if(kind==='inno') d=r.k===1?'O impostor foi descoberto e não acertou a palavra.':'Os dois impostores foram descobertos e não acertaram a palavra.';
+    else if(kind==='imp-guess') d=r.k===1?'Descoberto, mas acertou a palavra secreta.':'Descobertos, mas acertaram a palavra secreta.';
+    else d=detail;
+    $('#resDetail').textContent=d;
+    var ip=(kind==='imp-guess')?1:2;
+    award(inno,ip);
+    $('#resPts').textContent=inno?'Cada inocente ganha 1 ponto.':(ip===1?(r.k===1?'O impostor ganha 1 ponto por acertar a palavra.':'Cada impostor ganha 1 ponto por acertar a palavra.'):(r.k===1?'O impostor ganha 2 pontos.':'Cada impostor ganha 2 pontos.'));
+  }
+  S.players.forEach(function(n,i){ (r.imps[i]?imps:good).push(n); });
+  $('#resWord').textContent=r.word.w;
+  $('#resKick').textContent=imps.length>1?'Os impostores eram':'O impostor era';
+  $('#resImps').textContent=imps.join(' e ');
+  $('#resHint').textContent=r.hint?('Dica '+LEVEL_NAME[r.level]+': '+r.word[r.level]):'Nesta rodada o impostor jogou sem dica.';
+  var g=$('#resGood'); g.innerHTML=''; good.forEach(function(n){ g.appendChild(el('span',null,n)); });
+  var gm=S.game, last=gm.n>=gm.total;
+  $('#boardTitle').textContent='Placar · rodada '+gm.n+' de '+gm.total;
+  fillBoard($('#resBoard'));
+  $('#againBtn').textContent=last?'Ver ranking final':'Próxima rodada ('+(gm.n+1)+' de '+gm.total+')';
+  show('result');
+}
+
+/* ---------- pontos e ranking ---------- */
+function award(winInno,ip){
+  var r=S.round, g=S.game; if(r.scored) return; r.scored=true;
+  S.players.forEach(function(_,i){
+    if(r.imps[i]){ if(!winInno) g.scores[i]+=ip; }
+    else if(winInno) g.scores[i]+=1;
+  });
+}
+function sortedScores(){
+  return S.players.map(function(n,i){return {n:n,p:S.game.scores[i]}}).sort(function(a,b){return b.p-a.p});
+}
+function fillBoard(box){
+  box.innerHTML='';
+  sortedScores().forEach(function(x){
+    var row=el('div','trow'); row.appendChild(el('span',null,x.n));
+    row.appendChild(el('b',null,x.p+(x.p===1?' ponto':' pontos'))); box.appendChild(row);
+  });
+}
+function showFinal(){
+  var list=sortedScores(), box=$('#rank'); box.innerHTML='';
+  var pos=0, prev=null;
+  list.forEach(function(x,i){
+    if(x.p!==prev){ pos=i+1; prev=x.p; }
+    x.pos=pos;
+    var row=el('div','rrow'+(pos===1?' first':''));
+    row.appendChild(el('span','pos',pos+'º'));
+    row.appendChild(el('span','nm',x.n));
+    row.appendChild(el('span','pt',x.p+(x.p===1?' pt':' pts')));
+    box.appendChild(row);
+  });
+  var tops=list.filter(function(x){return x.pos===1}).map(function(x){return x.n});
+  $('#finalWinner').textContent=tops.length===1?('Campeão: '+tops[0]+' com '+list[0].p+(list[0].p===1?' ponto.':' pontos.')):('Empate no topo entre '+tops.join(', ')+' com '+list[0].p+(list[0].p===1?' ponto.':' pontos.'));
+  show('final');
+}
+function startGame(){
+  S.game={total:S.rounds,n:1,scores:S.players.map(function(){return 0})};
+  if(!newRound()){ S.game=null; return; }
+  show('reveal'); setReveal(0);
+}
+
+/* ---------- ações ---------- */
+$('#startBtn').addEventListener('click',startGame);
+$('#againBtn').addEventListener('click',function(){
+  var g=S.game;
+  if(g.n>=g.total){ showFinal(); return; }
+  g.n++;
+  if(!newRound()) return;
+  show('reveal'); setReveal(0);
+});
+$('#replayBtn').addEventListener('click',startGame);
+$('#finalBack').addEventListener('click',function(){ S.game=null; S.round=null; S.game=null; show('setup'); });
+$('#pickInno').addEventListener('click',function(){ showResult('win-inno'); });
+$('#pickImp').addEventListener('click',function(){ showResult('win-imp'); });
+$('#endBtn').addEventListener('click',startVote);
+$('#skipBtn').addEventListener('click',function(){ showResult('skip'); });
+$('#voterGo').addEventListener('click',openPick);
+$('#vdReveal').addEventListener('click',applyVerdict);
+$('#cancelVote').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+$('#guessHit').addEventListener('click',function(){ showResult('imp-guess'); });
+$('#guessMiss').addEventListener('click',function(){ showResult('inno'); });
+$('#backBtn').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+$('#cancelReveal').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+$('#cancelPlay').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+
+/* ---------- início ---------- */
+load(); syncControls(); renderPlayers(); renderCats();
+})();
+</script>
