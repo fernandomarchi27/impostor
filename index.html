@@ -1,3 +1,4 @@
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Impostor</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
@@ -279,6 +280,72 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 }
 @media (hover:none){.btn.ghost:hover:not(:disabled){filter:none}}
 @media (prefers-reduced-motion:reduce){.curtain{transition:none}.curtain .pull svg{animation:none}.btn{transition:none}}
+
+/* Ajustes responsivos adicionais */
+html { width: 100%; overflow-x: clip; -webkit-text-size-adjust: 100%; }
+body { width: 100%; overflow-x: clip; }
+.app { width: 100%; max-width: 560px; }
+main, .screen, .card, .panel, .dock, .stage { min-width: 0; }
+img, svg, video, canvas { max-width: 100%; }
+input, button { max-width: 100%; }
+.addrow { min-width: 0; }
+.addrow input { width: 100%; }
+.rowi { min-width: 0; }
+.rl { overflow-wrap: anywhere; }
+.seg { max-width: 100%; }
+.seg span { padding-inline: clamp(7px, 2.5vw, 14px); }
+.tiles, .pickgrid { width: 100%; }
+.tile, .pickcard { min-width: 0; overflow-wrap: anywhere; }
+.dock { width: auto; }
+@media (min-width: 700px) {
+  .app { max-width: 720px; padding-inline: 24px; }
+  .dock { margin-inline: 0; }
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .app { padding: 10px 12px 0; gap: 12px; }
+  .dock { margin-inline: -12px; padding: 14px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .card, .panel { padding: 15px; border-radius: 22px; }
+  .btn { min-height: 50px; padding-inline: 16px; font-size: 1rem; }
+  .addrow { gap: 6px; }
+  .addrow input { padding-inline: 14px; font-size: 16px; }
+  .addrow .btn { padding-inline: 13px; font-size: .9rem; }
+  .label { font-size: 1.1rem; }
+  .rowi { gap: 8px; }
+  .rowi .ico { width: 30px; font-size: 1.45rem; }
+  .rl b { font-size: 1rem; }
+  .rl small { font-size: .78rem; }
+  .seg { gap: 2px; padding: 3px; }
+  .seg span { min-height: 34px; padding-inline: 8px; font-size: .82rem; }
+  .stepper { gap: 4px; }
+  .stepper .icon-btn { width: 36px; height: 36px; }
+  .stepper input { width: 38px; font-size: 1.05rem; }
+  .levels { grid-template-columns: 1fr; }
+  .lvl-b { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tile { min-height: 100px; padding: 12px 8px; }
+  .tile .em { font-size: 2.1rem; }
+  .stage { min-height: 300px; }
+  .curtain { padding: 20px 14px 16px; }
+  .pickgrid { gap: 8px; }
+  .pickcard { padding: 12px 8px; font-size: .95rem; }
+  .rrow { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; padding: 12px; }
+}
+@media (max-width: 360px) {
+  .app { padding-inline: 8px; }
+  .dock { margin-inline: -8px; padding-inline: 8px; }
+  .card, .panel { padding: 12px; }
+  .addrow .btn { padding-inline: 10px; }
+  .seg span { padding-inline: 6px; font-size: .78rem; }
+  .rowi { flex-wrap: wrap; }
+  .rowi .rl { flex: 1 1 calc(100% - 44px); }
+  .rowi .seg, .rowi .stepper { margin-left: 38px; }
+  .pickcard .av { width: 48px; height: 48px; }
+}
+@media (min-width: 900px) {
+  .app { max-width: 760px; }
+}
+
 </style>
 
 <div class="app">
