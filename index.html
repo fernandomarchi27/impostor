@@ -1,4 +1,4 @@
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Impostor</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
@@ -86,12 +86,16 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .addrow .btn{min-height:54px;font-size:1rem;padding:0 22px}
 .msg{font-size:.88rem;color:var(--red);font-weight:600}
 .msg:empty,.players:empty{display:none}
-.players{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.players li{display:flex;align-items:center;gap:8px;padding:5px 5px 5px 6px;border-radius:999px;background:var(--card2);font-weight:700;max-width:100%;min-width:0}
-.players li .av{width:30px;height:30px;font-size:.9rem}
-.players li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.players li button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(127,127,140,.22);color:var(--muted);display:grid;place-items:center;flex:none;padding:0}
-.players li button:hover{color:var(--red)}
+.players{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:8px}
+.players li{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 8px;border-radius:999px;background:var(--card2);font-weight:700;min-width:0}
+.players li .av{width:34px;height:34px;font-size:1rem}
+.players li .pos{width:18px;text-align:center;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;flex:none}
+.players li .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.players li button{width:34px;height:34px;border-radius:50%;border:0;background:rgba(127,127,140,.2);color:var(--fg);display:grid;place-items:center;flex:none;padding:0}
+.players li button:disabled{opacity:.3;cursor:default}
+.players li button.rm:hover{color:var(--red)}
+.countrow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.countrow .textbtn{padding:6px 4px;color:var(--blue)}
 .count{font-size:.92rem;color:var(--muted);font-weight:600}
 .count b{color:var(--fg);font-variant-numeric:tabular-nums}
 
@@ -140,6 +144,23 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .gate p{font-size:.95rem}
 .gate .row{display:flex;gap:8px;flex-wrap:wrap}
 .foot{text-align:center;font-size:.82rem;color:var(--muted);padding-bottom:14px}
+
+/* partida salva e janela de confirmação */
+.resume{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:28px;background:linear-gradient(150deg,#8a00d0,#4f00ee);color:#fff}
+.resume b{font-size:1.2rem;font-weight:800}
+.resume p{color:#ecdcff;font-weight:600;font-size:.95rem}
+.resume .row{display:flex;gap:8px;flex-wrap:wrap}
+.resume .row .btn{flex:1 1 140px}
+.resume .row .btn.primary{flex-basis:100%}
+.resume .btn.ghost{border-color:rgba(255,255,255,.4);color:#fff}
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:16px;background:rgba(0,0,0,.6)}
+.modal[hidden]{display:none!important}
+.sheet{width:100%;max-width:440px;border-radius:32px;background:var(--card);color:var(--fg);padding:24px 20px 20px;display:flex;flex-direction:column;gap:10px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--line)}
+:root[data-purple] .sheet{background:#2a0a78}
+.sheet h3{font-size:1.4rem}
+.sheet p{color:var(--muted);font-weight:600}
+.sheet .mbtns{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+@media (min-width:700px){.modal{align-items:center}}
 
 /* avatares coloridos */
 .av{display:inline-grid;place-items:center;width:62px;height:62px;border-radius:50%;color:#fff;font-weight:800;font-size:1.9rem;flex:none;text-shadow:0 1px 2px rgba(0,0,0,.25)}
@@ -280,72 +301,6 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 }
 @media (hover:none){.btn.ghost:hover:not(:disabled){filter:none}}
 @media (prefers-reduced-motion:reduce){.curtain{transition:none}.curtain .pull svg{animation:none}.btn{transition:none}}
-
-/* Ajustes responsivos adicionais */
-html { width: 100%; overflow-x: clip; -webkit-text-size-adjust: 100%; }
-body { width: 100%; overflow-x: clip; }
-.app { width: 100%; max-width: 560px; }
-main, .screen, .card, .panel, .dock, .stage { min-width: 0; }
-img, svg, video, canvas { max-width: 100%; }
-input, button { max-width: 100%; }
-.addrow { min-width: 0; }
-.addrow input { width: 100%; }
-.rowi { min-width: 0; }
-.rl { overflow-wrap: anywhere; }
-.seg { max-width: 100%; }
-.seg span { padding-inline: clamp(7px, 2.5vw, 14px); }
-.tiles, .pickgrid { width: 100%; }
-.tile, .pickcard { min-width: 0; overflow-wrap: anywhere; }
-.dock { width: auto; }
-@media (min-width: 700px) {
-  .app { max-width: 720px; padding-inline: 24px; }
-  .dock { margin-inline: 0; }
-  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media (max-width: 480px) {
-  .app { padding: 10px 12px 0; gap: 12px; }
-  .dock { margin-inline: -12px; padding: 14px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
-  .card, .panel { padding: 15px; border-radius: 22px; }
-  .btn { min-height: 50px; padding-inline: 16px; font-size: 1rem; }
-  .addrow { gap: 6px; }
-  .addrow input { padding-inline: 14px; font-size: 16px; }
-  .addrow .btn { padding-inline: 13px; font-size: .9rem; }
-  .label { font-size: 1.1rem; }
-  .rowi { gap: 8px; }
-  .rowi .ico { width: 30px; font-size: 1.45rem; }
-  .rl b { font-size: 1rem; }
-  .rl small { font-size: .78rem; }
-  .seg { gap: 2px; padding: 3px; }
-  .seg span { min-height: 34px; padding-inline: 8px; font-size: .82rem; }
-  .stepper { gap: 4px; }
-  .stepper .icon-btn { width: 36px; height: 36px; }
-  .stepper input { width: 38px; font-size: 1.05rem; }
-  .levels { grid-template-columns: 1fr; }
-  .lvl-b { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .tile { min-height: 100px; padding: 12px 8px; }
-  .tile .em { font-size: 2.1rem; }
-  .stage { min-height: 300px; }
-  .curtain { padding: 20px 14px 16px; }
-  .pickgrid { gap: 8px; }
-  .pickcard { padding: 12px 8px; font-size: .95rem; }
-  .rrow { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; padding: 12px; }
-}
-@media (max-width: 360px) {
-  .app { padding-inline: 8px; }
-  .dock { margin-inline: -8px; padding-inline: 8px; }
-  .card, .panel { padding: 12px; }
-  .addrow .btn { padding-inline: 10px; }
-  .seg span { padding-inline: 6px; font-size: .78rem; }
-  .rowi { flex-wrap: wrap; }
-  .rowi .rl { flex: 1 1 calc(100% - 44px); }
-  .rowi .seg, .rowi .stepper { margin-left: 38px; }
-  .pickcard .av { width: 48px; height: 48px; }
-}
-@media (min-width: 900px) {
-  .app { max-width: 760px; }
-}
-
 </style>
 
 <div class="app">
@@ -372,6 +327,14 @@ input, button { max-width: 100%; }
   <main>
     <!-- CONFIGURAÇÃO -->
     <section class="screen" id="s-setup" aria-labelledby="t-setup">
+      <div class="resume" id="resumeCard" hidden>
+        <b>Partida em andamento</b>
+        <p id="resumeInfo"></p>
+        <div class="row">
+          <button class="btn primary" type="button" id="resumeBtn">Continuar partida</button>
+          <button class="btn ghost" type="button" id="discardBtn">Descartar</button>
+        </div>
+      </div>
       <div class="hero">
         <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><use href="#logo"/></svg>
         <h1 id="t-setup">Impostor</h1>
@@ -387,7 +350,7 @@ input, button { max-width: 100%; }
         </form>
         <p class="msg" id="nameMsg" role="status"></p>
         <ul class="players" id="players" aria-label="Jogadores adicionados"></ul>
-        <p class="count" id="playerCount"></p>
+        <div class="countrow"><p class="count" id="playerCount"></p><button class="textbtn" type="button" id="shuffleBtn">Embaralhar ordem</button></div>
       </div>
 
       <h2 class="label">Configurações do Jogo</h2>
@@ -619,44 +582,154 @@ input, button { max-width: 100%; }
     </section>
   </main>
 </div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet">
+    <h3 id="mTitle"></h3>
+    <p id="mText"></p>
+    <div class="mbtns">
+      <button class="btn danger block" type="button" id="mYes"></button>
+      <button class="btn ghost block" type="button" id="mNo"></button>
+    </div>
+  </div>
+</div>
 <script>
 var DATA=[];
-DATA.push({c:"Natureza",t:`Vulcão|montanha que cospe lava|erupção|Pompeia
-Cachoeira|água despencando de um penhasco|queda d'água|Foz do Iguaçu
-Oceano|gigante de água salgada|Atlântico e Pacífico|profundezas escuras
-Deserto|muita areia e quase nenhuma chuva|Saara|miragem
-Floresta|muitas árvores juntas|Amazônia|trilha e silêncio
-Montanha|grande elevação de terra|Everest|alpinista
-Rio|corre até o mar|Amazonas|ponte
-Lago|água cercada de terra|calmo e espelhado|pedalinho
-Praia|areia e mar|guarda-sol|protetor solar
-Ilha|terra cercada de água por todos os lados|Fernando de Noronha|náufrago
-Caverna|buraco grande na rocha|morcegos|Platão
-Geleira|gelo gigante que escorre devagar|polos|Titanic
-Arco-íris|cores no céu|depois da chuva|pote de ouro
-Trovão|barulho forte no céu|vem depois do clarão|medo de cachorro
-Relâmpago|clarão na tempestade|luz rápida|super-herói de vermelho
-Furacão|vento giratório enorme|tempestade tropical|nomes próprios todo ano
-Terremoto|o chão treme|abalo sísmico|escala Richter
-Tsunami|onda gigante|maremoto|Japão
-Neve|flocos brancos caindo|frio extremo|boneco
-Chuva|água caindo do céu|poças e lama|cheiro de terra molhada
-Vento|ar em movimento|ventania|moinho girando
-Nuvem|branca no céu|algodão flutuante|avião atravessa
-Neblina|dificulta enxergar|nuvem rente ao chão|Londres
-Sol|estrela do dia|esquenta a Terra|girassol
-Lua|brilha à noite|tem fases|maré
-Estrela|ponto brilhante no céu|constelação|pedido de desejo
-Cometa|corpo celeste com cauda|Halley|passa a cada 76 anos
-Planeta|gira em torno do Sol|Terra e Marte|Plutão perdeu o posto
-Galáxia|bilhões de estrelas|Via Láctea|espiral
-Eclipse|sol ou lua escondidos|alinhamento de astros|sombra em pleno dia
-Aurora boreal|luzes coloridas no céu|perto dos polos|Noruega
+DATA.push({c:"Ciência e Descobertas",t:`Microscópio|amplia coisas minúsculas|laboratório|um universo dentro de uma gota
+Telescópio|observa objetos distantes|astronomia|aproxima o que permanece longe
+DNA|material genético|hereditariedade|uma receita escrita em quatro letras
+Átomo|unidade básica da matéria|elétrons e núcleo|o vazio é a maior parte
+Gravidade|força que atrai corpos|queda dos objetos|uma ligação que não se vê
+Vacina|ajuda a prevenir doenças|imunização|um ensaio para as defesas
+Foguete|veículo espacial|lançamento|escapar exige velocidade
+Satélite|orbita um planeta|comunicações|companhia que nunca pousa
+Bactéria|microrganismo unicelular|fermentação|nem toda presença invisível é inimiga
+Fóton|partícula da luz|energia luminosa|não conhece o repouso
+Robô|máquina programável|automação|um movimento sem vontade própria
+Imã|atrai certos metais|magnetismo|polos que não se conhecem sozinhos
+Evolução|mudança das espécies|seleção natural|a adaptação deixa rastros
+Constelação|grupo aparente de estrelas|mapa do céu|um desenho feito de distâncias
+Meteorito|rocha espacial que atinge o solo|cratera|o visitante já terminou a viagem
+Laboratório|local de experimentos|cientistas|a dúvida tem endereço
+Célula|unidade dos seres vivos|membrana e núcleo|um mundo delimitado por uma película
+Eletricidade|energia de cargas elétricas|corrente|a cidade para quando ela falta
+Antibiótico|medicamento contra bactérias|infecção bacteriana|não funciona contra qualquer inimigo
+Buraco negro|região espacial de gravidade extrema|horizonte de eventos|um limite sem retorno`});
+DATA.push({c:"História e Civilizações",t:`Pirâmide|construção triangular monumental|Egito antigo|uma geometria que sobrevive aos reis
+Castelo|fortaleza medieval|muralhas|poder protegido por pedra
+Faraó|governante do Egito antigo|sarcófago|um título cercado de eternidade
+Gladiador|lutador da Roma antiga|arena|aplausos no limite do risco
+Viking|navegador escandinavo antigo|navios longos|viagens que viraram lendas
+Samurai|guerreiro do Japão feudal|katana|a honra também era uma disciplina
+Renascimento|movimento cultural europeu|arte e ciência|voltar ao passado para inventar o futuro
+Revolução Industrial|transformação da produção|máquinas a vapor|a fumaça mudou o relógio
+Império|grande conjunto de territórios|imperador|a extensão nem sempre garante duração
+Arqueologia|estudo de vestígios do passado|escavação|perguntas respondidas pelo chão
+Bússola|instrumento de orientação|pontos cardeais|uma agulha que obedece ao invisível
+Pergaminho|material antigo de escrita|manuscrito|ideias guardadas em pele preparada
+Coliseu|anfiteatro de Roma|lutas antigas|um círculo para multidões
+Escriba|profissional da escrita antiga|registros|memória trabalhava por encomenda
+Navegação|viagem e orientação por mares|cartas marítimas|encontrar o caminho sem estrada
+Muralha|barreira defensiva extensa|fortificação|a proteção também separa
+Ampulheta|marca o tempo com areia|vidro e grãos|o futuro cai para baixo
+Dinastia|sequência de governantes da mesma família|sucessão|o poder ganha sobrenome
+Caravela|embarcação antiga à vela|grandes navegações|a descoberta dependia do vento
+Hieróglifo|sistema antigo de escrita|símbolos egípcios|figuras que também são palavras`});
+DATA.push({c:"Internet e Redes Sociais",t:`Meme|piada que viraliza na internet|imagem com legenda|a cultura se copia e muda
+Hashtag|marcador com cerquilha|assuntos em tendência|um símbolo organiza multidões
+Podcast|programa de áudio online|episódios|uma conversa cabe no bolso
+Streaming|transmissão de mídia pela internet|assistir sem baixar|o arquivo chega enquanto você usa
+Influenciador|criador com audiência online|publicidade digital|confiança transformada em alcance
+Algoritmo|sequência de regras computacionais|recomendações|a ordem muda o que se vê
+Avatar|representação digital de pessoa|foto de perfil|uma identidade emprestada
+Emoji|símbolo gráfico em mensagens|carinhas no teclado|um sentimento em poucos pixels
+Nuvem digital|armazenamento pela internet|backup remoto|seus arquivos moram em outro lugar
+Feed|sequência de publicações|rolagem infinita|um rio que nunca termina
+Notificação|aviso do aplicativo|alerta no celular|a interrupção pede atenção
+QR Code|código quadrado escaneável|abrir link com câmera|um endereço sem letras aparentes
+Senha|combinação secreta de acesso|login|uma porta feita de caracteres
+Wi-Fi|conexão sem fio à rede|roteador|uma ponte que não se vê
+Live|transmissão ao vivo|chat em tempo real|o atraso ainda parece presente
+Filtro|efeito digital sobre imagem|câmera de aplicativo|a realidade ganha uma camada
+Trend|tendência popular na rede|vídeo viral|todo mundo repete à sua maneira
+Captcha|teste para diferenciar humanos de bots|selecionar imagens|provar que você é você
+Backup|cópia de segurança|recuperar arquivos|a segunda chance dos dados
+Link|endereço clicável|hipertexto|um salto sem sair da cadeira`});
+DATA.push({c:"Mitologia e Lendas",t:`Minotauro|criatura metade homem metade touro|labirinto|a saída era mais importante que a força
+Sereia|criatura metade humana metade peixe|canto no mar|a beleza também podia ser perigo
+Fênix|ave mítica que renasce|cinzas|o fim vira começo
+Medusa|figura mitológica de cabelos de serpentes|olhar petrificante|a visão tinha consequência
+Dragão|criatura lendária escamosa|fogo e asas|um medo com muitas formas
+Unicórnio|cavalo lendário com um chifre|criatura mágica|o impossível virou símbolo
+Centauro|metade humano metade cavalo|mitologia grega|duas naturezas no mesmo passo
+Poseidon|deus grego dos mares|tridente|a autoridade vinha das profundezas
+Zeus|deus supremo do Olimpo|raios|um trono acima das nuvens
+Atena|deusa grega da sabedoria|coruja|a estratégia também era uma arma
+Lobisomem|humano que vira lobo nas lendas|lua cheia|a mudança obedece ao calendário
+Vampiro|criatura lendária que bebe sangue|presas e noite|um convite pode ser decisivo
+Basilisco|criatura lendária perigosa|olhar mortal|realeza no nome e terror no mito
+Grifo|criatura meio águia meio leão|asas e garras|duas coroas do reino animal
+Hidra|monstro mitológico de muitas cabeças|Hércules|um problema que se multiplica
+Pégaso|cavalo alado da mitologia|voo|a liberdade ganhou cascos
+Saci|personagem do folclore brasileiro com uma perna|redemoinho|a travessura chega com o vento
+Curupira|protetor das florestas no folclore|pés virados|as pegadas mentem
+Iara|personagem encantada dos rios brasileiros|canto à beira do rio|a correnteza guarda um segredo
+Boitatá|serpente de fogo do folclore|protege as matas|uma luz que não pede combustível`});
+DATA.push({c:"Arte e Criatividade",t:`Aquarela|pintura com tinta diluída em água|cores transparentes|as bordas nem sempre obedecem
+Escultura|obra artística tridimensional|argila ou pedra|uma ideia que ocupa espaço
+Mosaico|imagem feita de pequenas peças|azulejos coloridos|o todo depende dos pedaços
+Origami|dobradura artística de papel|arte japonesa|a forma nasce sem tesoura
+Grafite|arte desenhada em espaços urbanos|mural na rua|uma parede vira mensagem
+Fotografia|registro de imagens pela luz|câmera|um instante emprestado do tempo
+Cinema|arte de filmes|tela grande|muitas imagens fingem ser movimento
+Teatro|arte de atuação diante de público|palco e cortina|o personagem aparece sem tela
+Poesia|arte literária em versos|rima e metáfora|o silêncio também faz parte
+Dança|arte do movimento corporal|coreografia|uma frase sem palavras
+Cerâmica|arte com argila cozida|vaso de barro|o calor fixa a forma
+Animação|sequência de imagens em movimento|desenho animado|a ilusão nasce entre quadros
+Caligrafia|arte de escrever de forma expressiva|letras desenhadas|o traço tem personalidade
+Colagem|arte feita com recortes|papéis sobrepostos|juntar transforma o sentido
+Caricatura|desenho que exagera traços|retrato divertido|o reconhecimento vem do exagero
+Maquete|modelo reduzido de um objeto ou local|miniatura de prédio|um mundo menor para entender o maior
+Ilustração|imagem criada para comunicar|desenho de livro|a ideia ganha contorno
+Improviso|criação no momento|sem roteiro|o erro pode virar caminho
+Roteiro|texto que organiza cenas|falas e ações|a história antes de acontecer
+Cenário|ambiente de uma apresentação|decoração do palco|o lugar pode ser inventado`});
+DATA.push({c:"Natureza",t:`Vulcão|montanha que cospe lava|erupção|um silêncio que esconde pressão
+Cachoeira|água despencando de um penhasco|queda d'água|o desnível encontra seu som
+Oceano|gigante de água salgada|Atlântico e Pacífico|fronteira sem cerca
+Deserto|muita areia e quase nenhuma chuva|Saara|onde a ausência domina a paisagem
+Floresta|muitas árvores juntas|Amazônia|um teto que não foi construído
+Montanha|grande elevação de terra|Everest|o horizonte ganha altura
+Rio|corre até o mar|Amazonas|um caminho que nunca para
+Lago|água cercada de terra|calmo e espelhado|uma pausa no caminho da água
+Praia|areia e mar|guarda-sol|limite que muda a cada onda
+Ilha|terra cercada de água por todos os lados|Fernando de Noronha|isolamento com horizonte
+Caverna|buraco grande na rocha|morcegos|a luz precisa de convite
+Geleira|gelo gigante que escorre devagar|polos|memória de invernos acumulados
+Arco-íris|cores no céu|depois da chuva|sete promessas que não se tocam
+Trovão|barulho forte no céu|vem depois do clarão|a luz chega antes do aviso
+Relâmpago|clarão na tempestade|luz rápida|uma assinatura instantânea
+Furacão|vento giratório enorme|tempestade tropical|o centro mais calmo do caos
+Terremoto|o chão treme|abalo sísmico|um movimento que nasce escondido
+Tsunami|onda gigante|maremoto|o que começou longe chega depois
+Neve|flocos brancos caindo|frio extremo|silêncio que altera o cenário
+Chuva|água caindo do céu|poças e lama|visita vertical inesperada
+Vento|ar em movimento|ventania|presença que só se percebe pelo efeito
+Nuvem|branca no céu|algodão flutuante|um desenho sem contorno fixo
+Neblina|dificulta enxergar|nuvem rente ao chão|a distância desaparece primeiro
+Sol|estrela do dia|esquenta a Terra|um relógio sem ponteiros
+Lua|brilha à noite|tem fases|uma companhia que muda de rosto
+Estrela|ponto brilhante no céu|constelação|o passado acende o céu
+Cometa|corpo celeste com cauda|Halley|visitante de retorno imprevisível
+Planeta|gira em torno do Sol|Terra e Marte|não produz sua própria luz
+Galáxia|bilhões de estrelas|Via Láctea|uma cidade impossível de percorrer
+Eclipse|sol ou lua escondidos|alinhamento de astros|a coincidência de três caminhos
+Aurora boreal|luzes coloridas no céu|perto dos polos|um espetáculo causado pelo invisível
 Pântano|terreno encharcado|lama e jacaré|ogro verde de filme
 Savana|planície africana|leões e zebras|capim dourado
 Tundra|região gelada sem árvores|Ártico|solo congelado
 Recife|corais perto da costa|mergulho|barreira
-Coral|vive no mar|colorido|branqueamento
+Coral|vive no mar|colorido|uma arquitetura feita de vidas
 Pedra|dura e mineral|rocha|estilingue
 Areia|grãos na praia|desertos|ampulheta
 Lama|terra com água|suja|porco
@@ -668,12 +741,12 @@ Penhasco|barranco íngreme|precipício|salto de base
 Dunas|montes de areia|Lençóis Maranhenses|camelo
 Gruta|caverna pequena|estalactites|templo escondido
 Mangue|vegetação costeira|caranguejo|movimento musical de Recife
-Cerrado|bioma brasileiro|savana do Brasil|pequi
-Pantanal|maior área alagada do planeta|jacarés|Mato Grosso
-Caatinga|bioma do Nordeste|sertão|mandacaru
-Árvore|tronco e folhas|sombra|anéis de crescimento
+Cerrado|bioma brasileiro|savana do Brasil|raízes profundas guardam a estação
+Pantanal|maior área alagada do planeta|jacarés|o calendário redesenha o chão
+Caatinga|bioma do Nordeste|sertão|a paisagem espera o retorno da cor
+Árvore|tronco e folhas|sombra|um arquivo de estações
 Folha|parte verde da planta|cai no outono|papel
-Flor|colorida e perfumada|buquê|abelha visita
+Flor|colorida e perfumada|buquê|um convite sem palavras
 Rosa|flor com espinhos|vermelha|romance
 Girassol|segue o sol|amarelo|Van Gogh
 Cacto|planta com espinhos|deserto|guarda água
@@ -682,90 +755,90 @@ Bambu|planta oca e alta|panda come|andaime
 Palmeira|árvore tropical|coco|oásis
 Orquídea|flor exótica e delicada|estufa|baunilha
 Grama|verde no chão|jardim|campo de futebol
-Semente|origem da planta|plantar|dispersão
-Raiz|parte debaixo da planta|cenoura|matemática quadrada
+Semente|origem da planta|plantar|uma promessa em miniatura
+Raiz|parte debaixo da planta|cenoura|o começo que quase nunca aparece
 Tronco|corpo da árvore|madeira|lenhador
 Galho|ramo da árvore|pássaro pousa|varinha
 Musgo|verde sobre as pedras|úmido|pedra que rola não cria
-Cogumelo|fungo|champignon|floresta úmida
+Cogumelo|fungo|champignon|a superfície esconde a maior parte
 Lenha|madeira para queimar|fogueira|inverno
 Fogueira|fogo ao ar livre|acampamento|marshmallow
 Brisa|vento leve|praia|refresco
 Orvalho|gotas na manhã|na grama|madrugada fria
 Geada|gelo fino no chão|frio intenso|sul do Brasil
 Granizo|gelo que cai do céu|chuva de pedra|carro amassado
-Tornado|funil de vento|destruição|Kansas
+Tornado|funil de vento|destruição|um funil sem recipiente
 Enchente|água invade tudo|cheia|arca
 Seca|falta de chuva|sertão|rachaduras
-Maré|sobe e desce|influência da lua|surfista confere
-Onda|movimento do mar|surfistas|rádio
-Poço|buraco com água|balde|pedido de moeda
+Maré|sobe e desce|influência da lua|um ritmo definido à distância
+Onda|movimento do mar|surfistas|movimento sem viagem da matéria
+Poço|buraco com água|balde|profundidade à procura de superfície
 Nascente|onde o rio começa|fonte|início
 Lagoa|pequeno lago|água parada|Rodrigo de Freitas
-Oásis|água no meio do deserto|palmeiras|caravana
-Fóssil|resto antigo preservado|dinossauro|museu
-Diamante|pedra preciosa|carbono|noivado
-Ouro|metal amarelo|valioso|medalha
-Prata|metal brilhante|segundo lugar|talheres
-Cristal|mineral transparente|taça fina|energia dos místicos
+Oásis|água no meio do deserto|palmeiras|exceção que permite continuar
+Fóssil|resto antigo preservado|dinossauro|testemunha que já não fala
+Diamante|pedra preciosa|carbono|pressão transformada em permanência
+Ouro|metal amarelo|valioso|uma promessa que não enferruja
+Prata|metal brilhante|segundo lugar|brilho que escurece com o tempo
+Cristal|mineral transparente|taça fina|ordem invisível por dentro
 Carvão|combustível preto|churrasco|presente de criança malcomportada
-Petróleo|óleo extraído do solo|gasolina|pré-sal
+Petróleo|óleo extraído do solo|gasolina|um passado transformado em movimento
 Pólen|pó das flores|alergia|abelhas
 Colmeia|casa das abelhas|mel|rainha
 Poeira|sujeira fina no ar|móveis|espirro
 Trilha|caminho na mata|caminhada|bússola
 Península|terra quase toda cercada de água|forma de bota|Itália
 Estalactite|pendura no teto da gruta|calcário|gota por gota
-Atmosfera|camada de ar do planeta|oxigênio|ozônio
-Pôr do sol|fim do dia|céu alaranjado|foto romântica
-Amanhecer|início do dia|sol nascendo|galo canta
+Atmosfera|camada de ar do planeta|oxigênio|um escudo que não se vê
+Pôr do sol|fim do dia|céu alaranjado|um encerramento que acontece diariamente
+Amanhecer|início do dia|sol nascendo|um recomeço sem anúncio
 Lua cheia|redonda e brilhante|noite clara|lobisomem
-Tempestade|chuva forte com raios|temporal|navio em apuros
+Tempestade|chuva forte com raios|temporal|o céu perde a paciência
 Cordilheira|cadeia de montanhas|Andes|longa e alta
 `});
-DATA.push({c:"Animais",t:`Cachorro|melhor amigo do homem|late|passeio com coleira
-Gato|mia|bigodes|sete vidas
-Cavalo|galopa|montaria|ferradura
+DATA.push({c:"Animais",t:`Cachorro|melhor amigo do homem|late|um pacto antigo entre espécies
+Gato|mia|bigodes|domesticado só até certo ponto
+Cavalo|galopa|montaria|uma parceria que mudou caminhos
 Vaca|dá leite|muge|campo
 Porco|rosna na lama|bacon|fazenda
-Galinha|bota ovo|cacareja|penas
+Galinha|bota ovo|cacareja|uma ancestralidade inesperada
 Pato|nada e grasna|lagoa|patinho feio
 Ovelha|lã|bale|rebanho
 Cabra|sobe em pedras|bode parente|queijo especial
-Coelho|orelhas longas|pula|Páscoa
-Rato|roedor pequeno|queijo|laboratório
+Coelho|orelhas longas|pula|um símbolo que chegou antes da festa
+Rato|roedor pequeno|queijo|um visitante que quase nunca recebe convite
 Hamster|roedor de estimação|roda na gaiola|bochechas cheias
-Tartaruga|casco|devagar|longevidade
+Tartaruga|casco|devagar|a casa nunca fica para trás
 Cobra|rasteja|veneno|Medusa
 Jacaré|boca grande|rios|bolsa de couro
 Crocodilo|réptil temido|dentes afiados|choro falso
 Lagarto|réptil de quatro patas|rabo que solta|parede
-Camaleão|muda de cor|língua longa|disfarce
+Camaleão|muda de cor|língua longa|uma mudança que diz mais que esconde
 Sapo|coaxa|lagoa|príncipe encantado
 Perereca|anfíbio pequeno|grudenta|chuva à noite
 Peixe|vive na água|escamas|aquário
-Tubarão|dentes e nadadeira|oceano|filme de 1975
+Tubarão|dentes e nadadeira|oceano|mais antigo que muitas árvores
 Baleia|maior mamífero|esguicho|Moby Dick
-Golfinho|inteligente|saltos e assobios|Flipper
-Polvo|oito braços|tinta|previsão de Copa
+Golfinho|inteligente|saltos e assobios|conversa sem palavras humanas
+Polvo|oito braços|tinta|inteligência distribuída
 Lula|molusco de tentáculos|anéis fritos|gigante lendária
 Caranguejo|anda de lado|pinças|mangue
 Camarão|crustáceo rosado|coquetel|frito com alho
 Estrela-do-mar|cinco pontas|fundo do mar|regenera braços
 Água-viva|transparente e queima|flutua|sem cérebro
 Foca|barulhenta e gordinha|gelo|aplausos no circo
-Pinguim|ave que não voa|Antártida|smoking natural
+Pinguim|ave que não voa|Antártida|elegância em um ambiente improvável
 Urso polar|branco e grande|Ártico|derretimento do gelo
-Urso|peludo e forte|hibernação|mel
+Urso|peludo e forte|hibernação|o inverno pode parecer uma pausa
 Panda|preto e branco|bambu|China
-Lobo|uiva|alcateia|chapeuzinho
-Raposa|esperta|cauda peluda|fábula da uva
-Leão|rei da selva|juba|rugido
+Lobo|uiva|alcateia|a força nem sempre anda sozinha
+Raposa|esperta|cauda peluda|esperteza que virou personagem
+Leão|rei da selva|juba|o poder que também descansa
 Tigre|listrado|felino|Ásia
 Onça|pintada|felino brasileiro|Pantanal
 Leopardo|manchas|rápido|árvore
 Guepardo|mais veloz em terra|corre|manchas e lágrimas
-Elefante|tromba|grande|nunca esquece
+Elefante|tromba|grande|a memória virou fama
 Girafa|pescoço longo|folhas altas|manchas
 Zebra|listras|savana|cavalo de pijama
 Hipopótamo|gordo e aquático|boca enorme|rio africano
@@ -798,7 +871,7 @@ Papagaio|fala|colorido|louro
 Arara|ave grande e colorida|bico forte|selva
 Tucano|bico enorme|colorido|Amazônia
 Beija-flor|bate asas rápido|néctar|pequeno
-Coruja|olhos grandes|noite|sabedoria
+Coruja|olhos grandes|noite|silêncio que enxerga
 Águia|ave de rapina|voo alto|símbolo de países
 Falcão|rápido|caça|treinado por nobres
 Urubu|preto|come carniça|limpa a natureza
@@ -810,16 +883,16 @@ Flamingo|rosa|uma perna só|pescoço em S
 Avestruz|maior ave|corre|enterra a cabeça (lenda)
 Pavão|cauda colorida|leque|vaidade
 Peru|ave da ceia|glu-glu|Ação de Graças
-Abelha|faz mel|ferrão|zumbido
+Abelha|faz mel|ferrão|uma dança como endereço
 Vespa|inseto que ferroa|amarela e preta|ninho de papel
-Formiga|trabalha em fila|formigueiro|forte para o tamanho
-Borboleta|asas coloridas|casulo|efeito
+Formiga|trabalha em fila|formigueiro|força em trabalho coletivo
+Borboleta|asas coloridas|casulo|duas vidas em uma só
 Mariposa|inseto noturno|luz|asas peludas
 Joaninha|vermelha com bolinhas|sorte|pulgão
 Mosquito|pica|zumbe|dengue
 Mosca|inseto irritante|zumbe|lixo
 Barata|inseto resistente|noturna|sobrevive a tudo
-Aranha|oito patas|teia|super-herói de Nova York
+Aranha|oito patas|teia|arquitetura sem ferramentas
 Escorpião|ferrão|deserto|signo
 Grilo|canta à noite|salta|consciência de boneco
 Cigarra|canta no verão|barulhenta|fábula
@@ -3111,7 +3184,7 @@ Kung Fu Panda|Mestre|Po|macarrão
 Como Treinar o Seu Dragão|Banguela|vikings|Soluço
 Meu Malvado Favorito|Gru|Minions|banana
 Minions|amarelos|capangas|Bob
-Rio|arara|Carnaval|Linda
+Rio|arara|Carnaval|um caminho que nunca para
 Capitão América|escudo|soldado|Hydra
 Thor|martelo|Asgard|Loki
 Homem de Ferro|Stark|armadura|Pepper
@@ -3135,7 +3208,7 @@ Star Wars|galáxia|Jedi|Tatooine
 Indiana Jones|chicote|arqueólogo|chapéu
 De Volta para o Futuro|DeLorean|Marty|relógio
 Jurassic Park|dinossauros|âmbar|mosquito
-Tubarão|praia|Spielberg|barco
+Tubarão|praia|Spielberg|mais antigo que muitas árvores
 E.T.|bicicleta|Elliott|dedo
 Caça-Fantasmas|Slimer|Marshmallow|extermínio
 Gremlins|Gizmo|Natal|molhar
@@ -3257,7 +3330,7 @@ Pica-Pau|risada|Walter-Lantz|bico
 Os Flintstones|Pedra|Fred|Bedrock
 Os Jetsons|futurista|Rosie|Orbit
 Avenida Brasil|Carminha|Tufão|lixão
-Pantanal|Jove|Maria-Bruaca|onça
+Pantanal|Jove|Maria-Bruaca|o calendário redesenha o chão
 O Clone|Jade|Marrocos|Lucas
 Terra Nostra|imigrantes|italianos|café
 Fina Estampa|Griselda|Pereirão|Teresa-Cristina
@@ -3457,7 +3530,7 @@ Compasso|barra|quatro-por-quatro|metrônomo
 Partitura|pauta|claves|notas-escritas
 Maestro|batuta|regência|fraque
 Orquestra|filarmônica|naipes|sinfonia
-Coral|vozes|igreja-canto|regente
+Coral|vozes|igreja-canto|uma arquitetura feita de vidas
 Acorde|tríade|cifra|dó-maior
 Oitava|oito|intervalo|dobro
 Playlist|Spotify|lista|shuffle
@@ -3710,7 +3783,7 @@ Gramado|Serra|Natal|Chocolate
 Fernando de Noronha|Arquipélago|Golfinhos|Paraíso
 Foz do Iguaçu|Cataratas|Fronteira|Trinacional
 Lençóis Maranhenses|Dunas|Lagoas|Maranhão
-Pantanal|Planície|Onça|Alagado
+Pantanal|Planície|Onça|o calendário redesenha o chão
 Torre Eiffel|Ferro|Paris|Dama
 Estátua da Liberdade|Tocha|Ilha|Presente
 Big Ben|Relógio|Torre|Badalo
@@ -4006,7 +4079,7 @@ Lobisomem|Lua-cheia|Pelos|Uivo
 Esqueleto|Ossos|Caveira|Anatomia
 Caveira|Crânio|Osso|Pirata
 Morcego|Asas|Noturno|Caverna
-Aranha|Teia|Oito|Tecelã
+Aranha|Teia|Oito|arquitetura sem ferramentas
 Teia|Aranha|Fio|Armadilha
 Gato preto|Azar|Felino|Superstição
 Corvo|Preto|Poe|Agouro
@@ -4029,7 +4102,7 @@ Feitiço|Magia|Encanto|Bruxaria
 Maldição|Praga|Azar|Antiga
 Espantalho|Milharal|Palha|Corvos
 Lua cheia|Noite|Redonda|Uivo
-Neblina|Névoa|Cemitério|Densa
+Neblina|Névoa|Cemitério|a distância desaparece primeiro
 Velas|Chama|Cera|Escuro
 Teia de aranha|Poeira|Canto|Cenário
 Tabuleiro Ouija|Espíritos|Letras|Sessão
@@ -4044,8 +4117,8 @@ Sobrenatural|Além|Mistério|Paranormal
 Gárgula|Estátua|Catedral|Pedra
 Assombração|Espírito|Casa|Arrepio
 `});
-DATA.push({c:"Verão",t:`Praia|Areia|Mar|Guarda-sol
-Sol|Estrela|Calor|Bronzeado
+DATA.push({c:"Verão",t:`Praia|Areia|Mar|limite que muda a cada onda
+Sol|Estrela|Calor|um relógio sem ponteiros
 Protetor solar|Pele|Fator|Creme
 Bronzeador|Pele|Óleo|Dourada
 Biquíni|Duas-peças|Maiô|Fio
@@ -4086,10 +4159,10 @@ Marca de sol|Contraste|Pele|Biquíni
 Férias|Descanso|Folga|Janeiro
 Viagem|Trajeto|Mala|Estrada
 Acampamento|Barraca|Fogueira|Natureza
-Cachoeira|Queda|Banho|Trilha
+Cachoeira|Queda|Banho|o desnível encontra seu som
 Sorvete de limão|Gelado|Cítrico|Azedinho
 Tempestade de verão|Raio|Chuva|Fim-de-tarde
-Pôr do sol|Ocaso|Horizonte|Aplausos
+Pôr do sol|Ocaso|Horizonte|um encerramento que acontece diariamente
 Fogueira|Brasa|Lenha|Violão
 Violão|Cordas|Roda|Música
 Pipa|Papagaio|Linha|Vento
@@ -4102,8 +4175,8 @@ Guarda-vidas|Resgate|Boia|Torre
 Caranguejo|Crustáceo|Pinça|Mangue
 Concha|Mar|Casca|Ouvido
 Castelo de areia|Balde|Pá|Maré
-Maré|Lua|Vazante|Pescador
-Onda|Mar|Espuma|Quebrar
+Maré|Lua|Vazante|um ritmo definido à distância
+Onda|Mar|Espuma|movimento sem viagem da matéria
 Ressaca|Mar|Perigo|Bravo
 Carnaval|Folia|Bloco|Confete
 Réveillon|Virada|Branco|Fogos
@@ -4180,10 +4253,10 @@ Sogra|Parente|Marido|Piada
 Vizinho|Próximo|Muro|Barulho
 Síndico|Prédio|Reunião|Regras
 Porteiro|Portaria|Entrada|Interfone
-Gato|Felino|Miau|Sete-vidas
-Cachorro|Cão|Latido|Osso
+Gato|Felino|Miau|domesticado só até certo ponto
+Cachorro|Cão|Latido|um pacto antigo entre espécies
 Papagaio|Ave|Repetir|Pirata
-Formiga|Inseto|Trilha|Operária
+Formiga|Inseto|Trilha|força em trabalho coletivo
 Pernilongo|Mosquito|Zumbido|Noite
 Barata|Inseto|Chinelo|Voadora
 Chinelada|Bronca|Mãe|Dedo
@@ -5631,26 +5704,77 @@ var AVATARS=[
 ];
 function avatar(i,name){ var s=el('span','av c'+(i%8),(name||'?').trim().charAt(0).toUpperCase()); s.setAttribute('aria-hidden','true'); return s; }
 var SCREENS=['setup','reveal','play','vote','verdict','guess','result','final'];
-function show(name){
+var SAVE_KEY='impostor.game.v1', LAST={screen:'setup'};
+function gameActive(){ return !!(S.game&&S.round&&LAST.screen!=='setup'&&LAST.screen!=='final'); }
+function persist(){
+  if(LAST.screen==='setup'||!S.game||!S.round) return;
+  try{
+    var r=S.round, rr={}; for(var k in r){ rr[k]=r[k]; } rr.word=r.word.w;
+    var el_=(LAST.screen==='play')?(timerId?Date.now()-t0:(LAST.elapsed||0)):0;
+    localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,players:S.players,game:S.game,round:rr,last:LAST,elapsed:el_,B:B,V:V}));
+  }catch(e){}
+}
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function readSave(){
+  try{
+    var d=JSON.parse(localStorage.getItem(SAVE_KEY)); if(!d||d.v!==1||!d.round||!d.game||!Array.isArray(d.players)||!d.last) return null;
+    var w=null; for(var i=0;i<WORDS.length;i++){ if(WORDS[i].w===d.round.word){ w=WORDS[i]; break; } }
+    if(!w||d.players.length<3||!d.game.scores||d.game.scores.length!==d.players.length) return null;
+    d.round.word=w; return d;
+  }catch(e){ return null; }
+}
+function show(name,extra){
+  LAST=extra||{}; LAST.screen=name;
+  if(name==='setup') clearSave();
   SCREENS.forEach(function(s){ $('#s-'+s).hidden=(s!==name); });
   root.setAttribute('data-screen',name);
   if(PURPLE.indexOf(name)>=0) root.setAttribute('data-purple',''); else root.removeAttribute('data-purple');
   window.scrollTo(0,0);
   if(name!=='play') stopTimer();
+  if(name!=='setup') persist(); else renderResume();
 }
+
+/* ---------- janela de confirmação ---------- */
+var modalCb=null, modalPrev=null;
+function ask(title,text,yes,no,onYes){
+  $('#mTitle').textContent=title; $('#mText').textContent=text;
+  $('#mYes').textContent=yes; $('#mNo').textContent=no; modalCb=onYes;
+  modalPrev=document.activeElement; $('#modal').hidden=false; $('#mNo').focus();
+}
+function closeModal(){ $('#modal').hidden=true; modalCb=null; if(modalPrev&&modalPrev.focus&&document.body.contains(modalPrev)){ try{ modalPrev.focus(); }catch(e){} } }
+$('#mNo').addEventListener('click',closeModal);
+$('#mYes').addEventListener('click',function(){ var f=modalCb; closeModal(); if(f) f(); });
+$('#modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!$('#modal').hidden) closeModal(); });
 
 /* ---------- configuração ---------- */
 var nameInput=$('#nameInput'), nameMsg=$('#nameMsg');
 
-function renderPlayers(){
+var ARW_UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+var ARW_DN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function movePlayer(i,d){
+  var j=i+d; if(j<0||j>=S.players.length) return;
+  var t=S.players[i]; S.players[i]=S.players[j]; S.players[j]=t;
+  save(); renderPlayers({i:j,d:d});
+}
+function renderPlayers(fx){
   var ul=$('#players'); ul.innerHTML='';
   S.players.forEach(function(n,i){
-    var li=el('li'); li.appendChild(avatar(i,n)); li.appendChild(el('span',null,n));
-    var b=el('button'); b.type='button'; b.setAttribute('aria-label','Remover '+n);
+    var li=el('li'); li.appendChild(el('span','pos',String(i+1))); li.appendChild(avatar(i,n)); li.appendChild(el('span','nm',n));
+    var up=el('button','up'); up.type='button'; up.setAttribute('aria-label','Subir '+n); up.innerHTML=ARW_UP; up.disabled=(i===0);
+    up.addEventListener('click',function(){ movePlayer(i,-1); });
+    var dn=el('button','dn'); dn.type='button'; dn.setAttribute('aria-label','Descer '+n); dn.innerHTML=ARW_DN; dn.disabled=(i===S.players.length-1);
+    dn.addEventListener('click',function(){ movePlayer(i,1); });
+    var b=el('button','rm'); b.type='button'; b.setAttribute('aria-label','Remover '+n);
     b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     b.addEventListener('click',function(){ S.players.splice(i,1); save(); renderPlayers(); });
-    li.appendChild(b); ul.appendChild(li);
+    li.appendChild(up); li.appendChild(dn); li.appendChild(b); ul.appendChild(li);
   });
+  if(fx&&ul.children[fx.i]){
+    var tgt=ul.children[fx.i].querySelector(fx.d<0?'.up':'.dn'); if(!tgt||tgt.disabled) tgt=ul.children[fx.i].querySelector(fx.d<0?'.dn':'.up');
+    if(tgt&&!tgt.disabled) tgt.focus();
+  }
+  $('#shuffleBtn').hidden=(S.players.length<2);
   var n=S.players.length;
   $('#playerCount').innerHTML='<b>'+n+'</b> '+(n===1?'jogador':'jogadores')+(n<3?' · faltam '+(3-n)+' para começar':'');
   var can2=n>=5, r2=$('#imp2');
@@ -5662,6 +5786,7 @@ function renderPlayers(){
   updateStart();
 }
 
+$('#shuffleBtn').addEventListener('click',function(){ shuffle(S.players); save(); renderPlayers(); });
 function addPlayer(){
   var v=nameInput.value.replace(/\s+/g,' ').trim();
   nameMsg.textContent='';
@@ -5858,15 +5983,17 @@ nextBtn.addEventListener('click',function(){
 /* ---------- partida ---------- */
 var timerId=null, t0=0;
 function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
-function startPlay(){
+function startPlay(offset){
   $('#starter').textContent=S.players[S.round.starter];
   $('#playEyebrow').textContent='Rodada '+S.game.n+' de '+S.game.total;
-  show('play');
-  t0=Date.now(); $('#timer').textContent='00:00';
+  t0=Date.now()-(offset||0);
+  show('play'); persist();
+  var s0=Math.floor((offset||0)/1000), m0=Math.floor(s0/60); s0=s0%60; $('#timer').textContent=(m0<10?'0':'')+m0+':'+(s0<10?'0':'')+s0;
   stopTimer();
   timerId=setInterval(function(){
     var s=Math.floor((Date.now()-t0)/1000), m=Math.floor(s/60); s=s%60;
     $('#timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    if(s%5===0) persist();
   },500);
 }
 
@@ -5887,6 +6014,12 @@ function strikesText(){
 function beginBallot(restrict){
   var r=S.round, v=r.vote;
   B={voters:v.alive.slice(),vi:0,counts:{},restrict:restrict,revote:!!restrict};
+  renderBallot();
+  show('vote');
+  if(!r.secret){ B.open=true; openPick(); } else showVoter();
+}
+function renderBallot(){
+  var r=S.round, v=r.vote, restrict=B.restrict;
   $('#voteProg').textContent=strikesText();
   var note;
   if(restrict) note='Empate! Votem de novo só entre: '+restrict.map(pname).join(', ')+'.';
@@ -5895,16 +6028,16 @@ function beginBallot(restrict){
   else if(v.wrongs===0) note='O grupo pode errar uma vez. No segundo erro, os impostores vencem.';
   else note='Vocês já erraram uma vez. Mais um erro e os impostores vencem.';
   $('#voteNote').textContent=note;
-  show('vote');
-  if(!r.secret){ B.open=true; openPick(); } else showVoter();
 }
 function showVoter(){
+  B.phase='gate';
   $('#voteGate').hidden=false; $('#votePick').hidden=true;
   $('#voterName').textContent=pname(B.voters[B.vi]);
   $('#voteCount').textContent=B.open?'':'Voto '+(B.vi+1)+' de '+B.voters.length;
-  window.scrollTo(0,0);
+  window.scrollTo(0,0); persist();
 }
 function openPick(){
+  B.phase='pick';
   var voter=B.voters[B.vi], v=S.round.vote;
   var cands=(B.restrict||v.alive).filter(function(i){return B.open||i!==voter});
   $('#pickWho').textContent=B.open?'Votação aberta: decidam na conversa':'Voto de '+pname(voter);
@@ -5912,11 +6045,15 @@ function openPick(){
   var list=$('#pickList'); list.innerHTML='';
   cands.forEach(function(c){
     var b=el('button','pickcard'); b.type='button'; b.appendChild(avatar(c,pname(c))); b.appendChild(el('span','pn',pname(c)));
-    b.addEventListener('click',function(){ castVote(c); });
+    b.addEventListener('click',function(){ confirmVote(c); });
     list.appendChild(b);
   });
   $('#voteGate').hidden=true; $('#votePick').hidden=false;
-  window.scrollTo(0,0);
+  window.scrollTo(0,0); persist();
+}
+function confirmVote(c){
+  if(B.open) ask('Confirmar acusação','O grupo quer acusar '+pname(c)+' mesmo?','Sim, acusar '+pname(c),'Voltar',function(){ castVote(c); });
+  else ask('Confirmar voto','Você quer votar em '+pname(c)+' mesmo?','Sim, votar em '+pname(c),'Voltar',function(){ castVote(c); });
 }
 function castVote(c){
   if(B.open){ B.counts={}; B.counts[c]=1; showVerdict(c,[c]); return; }
@@ -5946,9 +6083,9 @@ function showVerdict(accused,tied){
     tie.appendChild(el('p','muted','Conversem e escolham quem será acusado:')); tie.lastChild.style.gridColumn='1/-1';
     tied.forEach(function(i){
       var b=el('button','pickcard wide'); b.type='button'; b.appendChild(avatar(i,pname(i))); b.appendChild(el('span','pn','Acusar '+pname(i)));
-      b.addEventListener('click',function(){
-        V.accused=i; tie.hidden=true; $('#vdEyebrow').textContent='Acusado'; $('#vdName').textContent=pname(i); $('#vdReveal').hidden=false;
-      });
+      b.addEventListener('click',function(){ ask('Confirmar acusação','O grupo quer acusar '+pname(i)+' mesmo?','Sim, acusar '+pname(i),'Voltar',function(){
+        V.accused=i; tie.hidden=true; $('#vdEyebrow').textContent='Acusado'; $('#vdName').textContent=pname(i); $('#vdReveal').hidden=false; persist();
+      }); });
       tie.appendChild(b);
     });
   }else{
@@ -5983,6 +6120,8 @@ function applyVerdict(){
   box.appendChild(el('p','vd',detail));
   box.hidden=false; $('#vdReveal').hidden=true;
   var next=$('#vdNext'); next.hidden=false;
+  LAST={screen:'afterVerdict',next:all?'guess':(over?'result':'ballot'),kind:'imp-vote',detail:over?(r.k===1?'O grupo errou a votação única.':(v.wrongs>v.maxWrongs?'O grupo errou duas vezes.':'As votações terminaram sem descobrir os dois impostores.')):''};
+  persist();
   if(all){ next.textContent='Chute final do impostor'; next.onclick=function(){ showGuess(); }; }
   else if(over){ next.textContent='Ver resultado final'; next.onclick=function(){ showResult('imp-vote',r.k===1?'O grupo errou a votação única.':(v.wrongs>v.maxWrongs?'O grupo errou duas vezes.':'As votações terminaram sem descobrir os dois impostores.')); }; }
   else { next.textContent='Próxima votação'; next.onclick=function(){ beginBallot(null); }; }
@@ -6027,7 +6166,7 @@ function showResult(kind,detail){
   $('#boardTitle').textContent='Placar · rodada '+gm.n+' de '+gm.total;
   fillBoard($('#resBoard'));
   $('#againBtn').textContent=last?'Ver ranking final':'Próxima rodada ('+(gm.n+1)+' de '+gm.total+')';
-  show('result');
+  show('result',{kind:kind,detail:detail});
 }
 
 /* ---------- pontos e ranking ---------- */
@@ -6065,9 +6204,65 @@ function showFinal(){
   show('final');
 }
 function startGame(){
+  if(!histArmed) armHistory();
   S.game={total:S.rounds,n:1,scores:S.players.map(function(){return 0})};
   if(!newRound()){ S.game=null; return; }
   show('reveal'); setReveal(0);
+}
+
+/* ---------- partida salva, saída segura ---------- */
+function restoreGame(d){
+  S.players=d.players; S.game=d.game; S.round=d.round; B=d.B||null; V=d.V||null;
+  renderPlayers(); armHistory();
+  var L=d.last, r=S.round;
+  try{
+    switch(L.screen){
+      case 'reveal': show('reveal'); setReveal(r.i||0); break;
+      case 'play': startPlay(d.elapsed||0); break;
+      case 'vote': if(!B||!r.vote) { startVote(); break; } renderBallot(); show('vote'); if(B.open||B.phase==='pick') openPick(); else showVoter(); break;
+      case 'verdict':
+        if(!B||!V){ startVote(); break; }
+        var ids=Object.keys(B.counts).map(Number), mx=Math.max.apply(null,ids.map(function(i){return B.counts[i]}));
+        showVerdict(V.accused==null?null:V.accused, ids.filter(function(i){return B.counts[i]===mx})); break;
+      case 'afterVerdict':
+        if(L.next==='guess') showGuess(); else if(L.next==='result') showResult(L.kind,L.detail); else beginBallot(null); break;
+      case 'guess': showGuess(); break;
+      case 'result': showResult(L.kind,L.detail); break;
+      case 'final': showFinal(); break;
+      default: show('reveal'); setReveal(0);
+    }
+  }catch(e){ clearSave(); S.round=null; S.game=null; show('setup'); }
+}
+function renderResume(){
+  var d=readSave(), card=$('#resumeCard');
+  if(!d){ card.hidden=true; return; }
+  $('#resumeInfo').textContent='Rodada '+d.game.n+' de '+d.game.total+' · '+d.players.length+' jogadores. Seu progresso foi salvo neste aparelho.';
+  card.hidden=false;
+}
+$('#resumeBtn').addEventListener('click',function(){ var d=readSave(); if(d) restoreGame(d); else renderResume(); });
+$('#discardBtn').addEventListener('click',function(){
+  ask('Descartar partida?','A partida salva será apagada e não poderá ser recuperada.','Sim, descartar','Voltar',function(){ clearSave(); renderResume(); });
+});
+var histArmed=false;
+function armHistory(){ try{ history.pushState({impostor:1},''); histArmed=true; }catch(e){} }
+window.addEventListener('popstate',function(){
+  if(!gameActive()) return;
+  try{ history.pushState({impostor:1},''); }catch(e){}
+  leaveAsk('Quer sair mesmo?','Se voltar agora, a partida em andamento fica salva e você poderá continuar depois.');
+});
+window.addEventListener('beforeunload',function(e){ if(gameActive()){ persist(); e.preventDefault(); e.returnValue=''; return ''; } });
+window.addEventListener('pagehide',persist);
+document.addEventListener('visibilitychange',function(){ if(document.hidden) persist(); });
+function leaveGame(){ S.round=null; S.game=null; B=null; V=null; clearSave(); show('setup'); }
+function leaveAsk(title,text){
+  ask(title,text,'Sim, sair da partida','Continuar jogando',function(){ var d=null; persist(); leaveToSetup(); });
+}
+function leaveToSetup(){
+  /* mantém a partida salva: ao voltar, aparece "Continuar partida" */
+  var keep=null; try{ keep=localStorage.getItem(SAVE_KEY); }catch(e){}
+  S.round=null; S.game=null; B=null; V=null; show('setup');
+  try{ if(keep) localStorage.setItem(SAVE_KEY,keep); }catch(e){}
+  renderResume();
 }
 
 /* ---------- ações ---------- */
@@ -6080,21 +6275,23 @@ $('#againBtn').addEventListener('click',function(){
   show('reveal'); setReveal(0);
 });
 $('#replayBtn').addEventListener('click',startGame);
-$('#finalBack').addEventListener('click',function(){ S.game=null; S.round=null; S.game=null; show('setup'); });
+$('#finalBack').addEventListener('click',leaveGame);
 $('#pickInno').addEventListener('click',function(){ showResult('win-inno'); });
 $('#pickImp').addEventListener('click',function(){ showResult('win-imp'); });
 $('#endBtn').addEventListener('click',startVote);
 $('#skipBtn').addEventListener('click',function(){ showResult('skip'); });
 $('#voterGo').addEventListener('click',openPick);
 $('#vdReveal').addEventListener('click',applyVerdict);
-$('#cancelVote').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+$('#cancelVote').addEventListener('click',function(){ leaveAsk('Cancelar a partida?','A partida em andamento fica salva neste aparelho. Você poderá continuar depois pela tela inicial, ou descartar por lá.'); });
 $('#guessHit').addEventListener('click',function(){ showResult('imp-guess'); });
 $('#guessMiss').addEventListener('click',function(){ showResult('inno'); });
-$('#backBtn').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
-$('#cancelReveal').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
-$('#cancelPlay').addEventListener('click',function(){ S.round=null; S.game=null; show('setup'); });
+$('#backBtn').addEventListener('click',function(){ ask('Encerrar a partida?','O placar desta partida será perdido e você volta para a configuração.','Sim, encerrar','Voltar',leaveGame); });
+$('#cancelReveal').addEventListener('click',function(){ leaveAsk('Cancelar a partida?','A partida em andamento fica salva neste aparelho. Você poderá continuar depois pela tela inicial, ou descartar por lá.'); });
+$('#cancelPlay').addEventListener('click',function(){ leaveAsk('Cancelar a partida?','A partida em andamento fica salva neste aparelho. Você poderá continuar depois pela tela inicial, ou descartar por lá.'); });
 
 /* ---------- início ---------- */
-load(); syncVoteOpts(); syncControls(); renderPlayers(); renderCats();
+load(); syncVoteOpts(); syncControls(); renderPlayers(); renderCats(); renderResume();
 })();
 </script>
+
+</body></html>
